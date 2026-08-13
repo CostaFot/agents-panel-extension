@@ -4,8 +4,9 @@ Single source of truth for coding agents (Claude Code, Codex, …) working in th
 just imports this file.
 
 A PowerToys **Command Palette** extension showing AI-agent **usage quotas** — session/weekly % used,
-reset times, plan info — with a pinnable **Dock band** as the main selling point ("5h 23%" / "Wk 41%"
-quick-look buttons). Covers **Claude** (Pro/Max subscription limits) and **Codex** (ChatGPT
+reset times, plan info — with pinnable per-provider **Dock bands** as the main selling point
+("5h 23%" / "Wk 41%" quick-look buttons; one band per provider, so the user picks which agents to
+pin via the host's own band management). Covers **Claude** (Pro/Max subscription limits) and **Codex** (ChatGPT
 subscription limits); the provider architecture is open for Copilot/etc. later. .NET 9 / C# / MSIX,
 self-contained single-file JIT (trim/AOT deliberately OFF).
 
@@ -33,9 +34,11 @@ Single observable source of truth; every surface OBSERVES, none fetches:
   `UsageStatus`-carrying snapshot). ⚠️ Unlike MarketExtension there is NO
   fallback routing: an unconfigured provider stays active and reports `NotConfigured` (rendered as a
   "Sign in" row/button) instead of disappearing — agent providers aren't interchangeable.
-- Registration order in `AgentsPanelCommandsProvider`: `ClaudeUsageProvider` → `CodexUsageProvider`.
-  Add providers to that array, plus a PNG + case in `Helpers/ProviderIcons.cs` (ProviderId → icon;
-  identifies dock buttons/hub rows — the terse dock titles carry no provider identity).
+- Registration order in `AgentsPanelCommandsProvider`: `ClaudeUsageProvider` → `CodexUsageProvider`,
+  in the static `Providers` array (used twice: repository ctor + one dock band per entry). Add
+  providers to that array, plus a PNG + case in `Helpers/ProviderIcons.cs` (ProviderId → icon;
+  identifies dock buttons/hub rows — the terse dock titles carry no provider identity) — the hub row
+  and dock band then appear automatically.
 - Model layering (MarketExtension convention): `Api*Dto` (wire format, all-nullable) → `Domain*`
   (provider-agnostic, NO formatting) → `Ui*` (`Models/UiUsage.cs` — the ONLY formatting home). Enums
   (`UsageWindowKind`, `UsageStatus`) unprefixed.
@@ -43,8 +46,11 @@ Single observable source of truth; every surface OBSERVES, none fetches:
   provider with a "5h 23% · Wk 41%" summary subtitle + worst-window/status pills; also the top-level
   command) → `Pages/UsageProviderPage.cs` (per-provider drill-in: window rows, status/plan rows,
   Refresh — dock buttons bypass the hub, so those can't be hub-only) → and
-  `Pages/UsageDockPage.cs` (dock band; each `GetItems()` row = one dock button, title budget
-  ~15 chars, **deep-links to that provider's page**). All three implement the explicit
+  `Pages/UsageDockPage.cs` (**one instance per provider** since 2026-08-13, observing
+  `ObserveUsage(providerId)`; each `GetItems()` row = one dock button, title budget ~15 chars,
+  **deep-links to that provider's page**; per-band `Id` = `…agentspanel.dock.<providerId>` — must
+  stay unique. Deliberately NO "show X in dock" setting: the host's pin/unpin per band IS the
+  chooser). All three implement the explicit
   `INotifyItemsChanged` pattern: subscribe `ObserveUsage(...)` in the event's `add` accessor,
   dispose-all in `remove`, `List<IDisposable>` (host may add twice), `private new void
   RaiseItemsChanged`. `Pages/UsageProviderPageCache.cs` holds ONE `UsageProviderPage` per ProviderId,
@@ -136,7 +142,8 @@ So:
   Don't add `Task.Run` on the delivery path either.
 - ⚠️ **Page-activation:** `GetItems()` runs before `ItemsChanged` is subscribed — a constructor
   `RaiseItemsChanged` is lost. First paint must come from the `add`-accessor subscription replay.
-- ⚠️ **Dock bands require a non-empty command `Id`** or the band silently disappears.
+- ⚠️ **Dock bands require a non-empty command `Id`** or the band silently disappears — and with one
+  band per provider the `Id` must also be **unique per band** or the host conflates them.
 - ⚠️ **JSON source-gen:** all `[JsonSerializable]` for one context on a SINGLE partial declaration
   (`Data/Claude/ApiClaudeDtos.cs`, `Data/Codex/ApiCodexDtos.cs` — one context per provider) —
   splitting silently breaks the generator.

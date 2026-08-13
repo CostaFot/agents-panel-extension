@@ -1,3 +1,4 @@
+using System.Linq;
 using AgentsPanelExtension.Properties;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
@@ -6,12 +7,16 @@ namespace AgentsPanelExtension;
 
 public partial class AgentsPanelCommandsProvider : CommandProvider
 {
-    // The repository coordinates all agent-usage providers; the palette page and the dock band share
-    // this one instance (single source of truth — both observe the same flow). Add a provider here
-    // (Copilot, ...) to extend coverage — implement IAgentUsageProvider and register it.
-    private readonly UsageRepository _repository =
-        new(new ClaudeUsageProvider(),
-            new CodexUsageProvider());
+    // The registration array is the extension seam: add a provider here (Copilot, ...) — implement
+    // IAgentUsageProvider, add a ProviderIcons case — and it shows up everywhere, including its own
+    // dock band.
+    private static readonly IAgentUsageProvider[] Providers =
+        [new ClaudeUsageProvider(),
+         new CodexUsageProvider()];
+
+    // The repository coordinates all agent-usage providers; the palette page and the dock bands share
+    // this one instance (single source of truth — all surfaces observe the same flow).
+    private readonly UsageRepository _repository = new(Providers);
 
     // One page per provider, shared by the hub and the dock so both navigate into the same instances.
     private readonly UsageProviderPageCache _providerPages;
@@ -38,18 +43,21 @@ public partial class AgentsPanelCommandsProvider : CommandProvider
             new CommandItem(new UsagePage(_repository, _providerPages)) { Title = Resources.Command_AgentsPanel },
         ];
 
-        // The dock band — the extension's main selling point: pinnable quick-look usage buttons
+        // The dock bands — the extension's main selling point: pinnable quick-look usage buttons
         // ("5h 23%" / "Wk 41%") that live-update while pinned and click through to their provider's
-        // page.
+        // page. ONE band per provider, so the user pins/unpins providers individually via the host's
+        // own band management (the reason there's no "show X in dock" setting).
         //
-        // Threading note (inherited from MarketExtension, where this crashed CmdPal): the band's
+        // Threading note (inherited from MarketExtension, where this crashed CmdPal): a band's
         // repository subscription must never deliver synchronously under an Rx lock, because
         // RaiseItemsChanged's blocking COM call re-enters the host's STA and the lock order cycles →
         // hang. UsageRepository.ObserveUsage ends in ObserveOn(TaskPoolScheduler) for exactly this
         // reason — surfaces are notified only after the locks release. Do not remove that hop.
-        _dockBands = [
-            new CommandItem(new UsageDockPage(_repository, _providerPages)) { Title = Resources.Command_AgentsPanel },
-        ];
+        _dockBands = [.. Providers.Select(p =>
+            new CommandItem(new UsageDockPage(_repository, _providerPages, p.Id, p.DisplayName))
+            {
+                Title = p.DisplayName,
+            })];
     }
 
     public override ICommandItem[] TopLevelCommands() => _commands;
