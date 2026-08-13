@@ -34,12 +34,6 @@ internal sealed class UsageSettingsManager : JsonSettingsManager
         Placeholder = DefaultRefreshMinutes.ToString(CultureInfo.InvariantCulture),
     };
 
-    private readonly ToggleSetting _demoMode = new("demoMode", false)
-    {
-        Label = Resources.Settings_Demo_Label,
-        Description = Resources.Settings_Demo_Desc,
-    };
-
     // Show the per-model weekly windows (Opus / Sonnet) as their own rows and dock buttons. Off by
     // default — most users care about the overall session + weekly numbers.
     private readonly ToggleSetting _showModelWindows = new("showModelWindows", false)
@@ -56,12 +50,6 @@ internal sealed class UsageSettingsManager : JsonSettingsManager
         Description = Resources.Settings_ShowExtraUsage_Desc,
     };
 
-    // Observable form of the Demo-mode toggle, driven by SettingsChanged. Unlike the other settings —
-    // read pull-style on the next refresh/render — flipping demo mode swaps the entire data SOURCE, so
-    // every held snapshot was produced by the OTHER source and is now wrong. UsageRepository subscribes
-    // and clears + re-fetches the instant it flips. Distinct-until-changed → emits only on a real flip.
-    private readonly MutableStateFlow<bool> _demoModeFlow = new(false);
-
     // Auto-refresh cadence in minutes; 0 means off. Bad/negative input falls back to the default, and a
     // positive value below the floor is clamped up to it (see MinRefreshMinutes) — enforced HERE so no
     // caller can accidentally poll the endpoint harder than the floor allows.
@@ -76,16 +64,6 @@ internal sealed class UsageSettingsManager : JsonSettingsManager
     // The cadence as a TimeSpan for PollTicker.
     public TimeSpan RefreshInterval => TimeSpan.FromMinutes(RefreshMinutes);
 
-    // When on, the app serves built-in sample data (MockUsageProvider) instead of reading any local
-    // credentials or calling any endpoint — nothing needed, works offline. The VALUE is read pull-style
-    // per request (MockUsageProvider reads it each call), but flipping the toggle applies IMMEDIATELY
-    // via DemoModeChanged below. Default off → ships live.
-    public bool DemoMode => _demoMode.Value;
-
-    // Observable form of DemoMode: UsageRepository subscribes to reset held snapshots the instant the
-    // toggle flips. Read .Value for a snapshot of the flag.
-    public StateFlow<bool> DemoModeChanged => _demoModeFlow;
-
     // Whether the per-model weekly windows (Opus/Sonnet) render as rows/dock buttons. Read pull-style
     // each render.
     public bool ShowModelWindows => _showModelWindows.Value;
@@ -97,17 +75,9 @@ internal sealed class UsageSettingsManager : JsonSettingsManager
     {
         FilePath = Path.Combine(Utilities.BaseSettingsPath("Microsoft.CmdPal"), "agentspanel.settings.json");
         Settings.Add(_refreshMinutes);
-        Settings.Add(_demoMode);
         Settings.Add(_showModelWindows);
         Settings.Add(_showExtraUsage);
         LoadSettings();
-        _demoModeFlow.Update(DemoMode); // seed from the persisted toggle (no subscribers yet)
-        Settings.SettingsChanged += (_, _) =>
-        {
-            SaveSettings();
-            // Publish the demo-mode flag so the repository resets the instant it flips (the held
-            // snapshots came from the other data source). Distinct-until-changed → only on a real flip.
-            _demoModeFlow.Update(DemoMode);
-        };
+        Settings.SettingsChanged += (_, _) => SaveSettings();
     }
 }

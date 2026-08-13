@@ -85,6 +85,9 @@
   <data name="Window_Week_Long" xml:space="preserve">
     <value>Weekly (all models)</value>
   </data>
+  <data name="Window_Month_Long" xml:space="preserve">
+    <value>Monthly (30-day)</value>
+  </data>
   <data name="Window_ModelWeek_Long" xml:space="preserve">
     <value>Weekly — {0}</value>
   </data>
@@ -96,6 +99,9 @@
   </data>
   <data name="Window_Week_Short" xml:space="preserve">
     <value>Wk</value>
+  </data>
+  <data name="Window_Month_Short" xml:space="preserve">
+    <value>Mo</value>
   </data>
   <data name="Window_Extra_Short" xml:space="preserve">
     <value>Extra</value>
@@ -118,20 +124,11 @@
   <data name="Usage_Empty_Subtitle" xml:space="preserve">
     <value>The account reported no active limits</value>
   </data>
-  <data name="Status_Demo_Title" xml:space="preserve">
-    <value>Demo mode</value>
-  </data>
-  <data name="Status_Demo_Subtitle" xml:space="preserve">
-    <value>Showing sample usage data — turn off in settings</value>
-  </data>
-  <data name="Status_Demo_Tag" xml:space="preserve">
-    <value>Demo</value>
-  </data>
   <data name="Status_NotSignedIn_Title" xml:space="preserve">
     <value>Sign in to {0}</value>
   </data>
   <data name="Status_NotSignedIn_Subtitle" xml:space="preserve">
-    <value>No local sign-in found — log in via the agent's app (e.g. Claude Code)</value>
+    <value>No local sign-in found — log in via the agent's own app</value>
   </data>
   <data name="Status_NotSignedIn_Tag" xml:space="preserve">
     <value>Not signed in</value>
@@ -140,7 +137,7 @@
     <value>{0} sign-in expired</value>
   </data>
   <data name="Status_TokenExpired_Subtitle" xml:space="preserve">
-    <value>Open the agent's app (e.g. Claude Code) to refresh it</value>
+    <value>Open the agent's own app to refresh it</value>
   </data>
   <data name="Status_TokenExpired_Tag" xml:space="preserve">
     <value>Expired</value>
@@ -180,12 +177,6 @@
   </data>
   <data name="Settings_Refresh_Desc" xml:space="preserve">
     <value>Usage refresh interval in minutes (minimum 3; 0 turns auto-refresh off)</value>
-  </data>
-  <data name="Settings_Demo_Label" xml:space="preserve">
-    <value>Demo mode</value>
-  </data>
-  <data name="Settings_Demo_Desc" xml:space="preserve">
-    <value>Show built-in sample usage data (no account or network needed)</value>
   </data>
   <data name="Settings_ShowModelWindows_Label" xml:space="preserve">
     <value>Per-model weekly limits</value>

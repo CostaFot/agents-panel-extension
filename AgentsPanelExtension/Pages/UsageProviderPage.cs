@@ -70,7 +70,7 @@ internal sealed partial class UsageProviderPage : ListPage, INotifyItemsChanged
         _refreshCommand = new RefreshUsageCommand(repository);
         Id = $"com.costafotiadis.agentspanel.provider.{providerId}"; // non-empty — dock buttons navigate here
         Title = displayName;
-        Icon = IconHelpers.FromRelativePath("Assets\\agentspanel_logo_base_square.png");
+        Icon = ProviderIcons.For(providerId);
         IsLoading = true; // until the first emission lands
     }
 
@@ -124,11 +124,6 @@ internal sealed partial class UsageProviderPage : ListPage, INotifyItemsChanged
             });
         }
 
-        // Kept here (not hub-only): dock buttons deep-link past the hub, so the demo notice must
-        // stay visible on this page too.
-        if (UsageStatusHint.DemoRow() is { } demo)
-            items.Add(demo);
-
         items.Add(new ListItem(_refreshCommand) { Title = Resources.Action_Refresh });
 
         return [.. items];
@@ -143,7 +138,7 @@ internal sealed partial class UsageProviderPage : ListPage, INotifyItemsChanged
 
     // A new state emission: project for rendering and repaint. Runs on a pool thread (ObserveOn) — no
     // Rx lock is held here, so RaiseItemsChanged's host call is safe. Null = the provider is absent
-    // from the current list (loading / demo flip) — show the spinner until it's back.
+    // from the current list (loading / IsAvailable off) — show the spinner until it's back.
     private void OnUsageChanged(DomainUsageSnapshot? snapshot)
     {
         _usage = snapshot is null ? null : UiUsage.From(snapshot);

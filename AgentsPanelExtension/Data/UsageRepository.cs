@@ -46,20 +46,6 @@ internal sealed class UsageRepository
             if (Volatile.Read(ref _observerCount) > 0)
                 Refresh("poll");
         });
-
-        // Demo flip swaps the entire data source, so every held snapshot is from the OTHER source and
-        // now wrong: clear immediately (live streams emit the empty list = loading) and re-fetch if
-        // anything is on screen; otherwise the next subscribe sees the empty state and fetches then.
-        _ = UsageSettingsManager.Instance.DemoModeChanged.Subscribe(
-            _ =>
-            {
-                Log.Info(Tag, "demo mode flipped — clearing snapshots and re-fetching");
-                Volatile.Write(ref _lastRefreshTicks, 0);
-                _state.Update([]);
-                if (Volatile.Read(ref _observerCount) > 0)
-                    Refresh("demo-flip");
-            },
-            replayOnSubscribe: false);
     }
 
     // The whole UI contract: subscribe to receive the current snapshot list immediately (replay) and
@@ -84,7 +70,7 @@ internal sealed class UsageRepository
 
     // Per-provider projection of the same flow: inherits the observer refcounting and the load-bearing
     // ObserveOn hop above (Select runs after the hop, so delivery stays on the pool thread). Emits null
-    // while the provider is absent from the list (loading / demo flip / IsAvailable off).
+    // while the provider is absent from the list (loading / IsAvailable off).
     public IObservable<DomainUsageSnapshot?> ObserveUsage(string providerId) =>
         ObserveUsage().Select(snapshots =>
             snapshots.FirstOrDefault(s => string.Equals(s.ProviderId, providerId, StringComparison.Ordinal)));
@@ -115,8 +101,8 @@ internal sealed class UsageRepository
         Log.Info(Tag, $"observer removed (now {count})");
     }
 
-    // Fire-and-forget seam: every trigger (poll tick, subscribe, demo flip, manual) funnels here so a
-    // provider failure can never become an unobserved task exception.
+    // Fire-and-forget seam: every trigger (poll tick, subscribe, manual) funnels here so a provider
+    // failure can never become an unobserved task exception.
     private void Refresh(string reason) => _ = RefreshAsync(reason);
 
     private async Task RefreshAsync(string reason)
@@ -148,16 +134,11 @@ internal sealed class UsageRepository
         }
     }
 
-    // The active set: exclusive-wins among the available providers (the mock flips IsExclusive on in
-    // demo mode and takes over), else all available providers in registration order. NOTE: unlike
-    // MarketExtension there is no configured/keyed filter — an unconfigured real provider stays active
-    // and reports NotConfigured (see IAgentUsageProvider).
-    private IAgentUsageProvider[] ActiveProviders()
-    {
-        var available = _providers.Where(p => p.IsAvailable).ToArray();
-        var exclusive = available.Where(p => p.IsExclusive).ToArray();
-        return exclusive.Length > 0 ? exclusive : available;
-    }
+    // The active set: all available providers in registration order. NOTE: unlike MarketExtension
+    // there is no configured/keyed filter — an unconfigured real provider stays active and reports
+    // NotConfigured (see IAgentUsageProvider).
+    private IAgentUsageProvider[] ActiveProviders() =>
+        _providers.Where(p => p.IsAvailable).ToArray();
 
     // Contract guard around a provider fetch: GetUsageAsync must not throw, but if one does (a bug),
     // log it loudly and degrade that provider to an Error snapshot instead of killing the whole batch.
@@ -178,8 +159,7 @@ internal sealed class UsageRepository
     // previously good one — the old Windows/FetchedAt/PlanLabel survive with the NEW status riding on
     // them, so the UI shows the last real numbers marked stale. A fresh Ok replaces outright. So does
     // NotConfigured: the credentials are GONE, and old numbers with a "sign in" prompt would mislead.
-    // Membership is defined by the fresh set — providers that dropped out (demo flip, IsAvailable off)
-    // disappear.
+    // Membership is defined by the fresh set — providers that dropped out (IsAvailable off) disappear.
     private static IReadOnlyList<DomainUsageSnapshot> Merge(
         IReadOnlyList<DomainUsageSnapshot> prev, DomainUsageSnapshot[] fresh)
     {

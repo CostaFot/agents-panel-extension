@@ -4,12 +4,15 @@ using System.Collections.Generic;
 namespace AgentsPanelExtension;
 
 // What kind of quota window a provider reported. Provider-agnostic: Claude maps five_hour → Session,
-// seven_day → Week, seven_day_opus/seven_day_sonnet → ModelWeek, extra_usage → ExtraUsage. Future
-// providers map their own shapes onto the same kinds so the UI needs no per-provider knowledge.
+// seven_day → Week, seven_day_opus/seven_day_sonnet → ModelWeek, extra_usage → ExtraUsage; Codex picks
+// Session/Week/Month from each window's duration (its windows vary by plan — e.g. the Go plan has one
+// 30-day window). Future providers map their own shapes onto the same kinds so the UI needs no
+// per-provider knowledge. ⚠️ Declaration order IS the UI display order (UiUsage sorts by Kind).
 internal enum UsageWindowKind
 {
     Session,
     Week,
+    Month,
     ModelWeek,
     ExtraUsage,
 }

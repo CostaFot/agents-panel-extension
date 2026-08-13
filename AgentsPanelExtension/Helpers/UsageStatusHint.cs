@@ -7,38 +7,17 @@ namespace AgentsPanelExtension;
 // Status rows explaining the current data state — the ApiKeyHint pattern from MarketExtension: helpers
 // return an IListItem? and callers append only when non-null:
 //
-//     if (UsageStatusHint.DemoRow() is { } hint) items.Add(hint);
+//     if (UsageStatusHint.StatusRow(snapshot) is { } hint) items.Add(hint);
 //
-// Colors follow the same convention: blue = deliberate state (demo mode), red = broken (not signed in /
-// expired), amber = degraded but self-healing (rate-limited / transient error). A ListItem has no
+// Colors follow the same convention: red = broken (not signed in / expired), amber = degraded but
+// self-healing (rate-limited / transient error). A ListItem has no
 // per-row text-color lever; a colored Tag (pill) is the only way to tint a row.
 internal static class UsageStatusHint
 {
     private const string WarningGlyph = "\uE7BA"; // Segoe MDL2 Warning
-    private const string InfoGlyph = "\uE946";    // Segoe MDL2 Info
 
     private static OptionalColor WarningRed => ColorHelpers.FromRgb(0xD1, 0x34, 0x38);
     private static OptionalColor DegradedAmber => ColorHelpers.FromRgb(0xF7, 0x63, 0x0C);
-    private static OptionalColor DemoBlue => ColorHelpers.FromRgb(0x00, 0x78, 0xD4);
-
-    // Built once and reused: the toolkit's navigable settings form over our settings singleton.
-    private static IContentPage? _settingsPage;
-
-    private static IContentPage SettingsPage =>
-        _settingsPage ??= UsageSettingsManager.Instance.Settings.SettingsPage;
-
-    // "Demo mode — showing sample data": surfaced while the Demo-mode setting is on so it's obvious the
-    // numbers are simulated. Enter → Settings (to turn it off). Null when live.
-    public static IListItem? DemoRow() =>
-        UsageSettingsManager.Instance.DemoMode
-            ? new ListItem(SettingsPage)
-            {
-                Title = Resources.Status_Demo_Title,
-                Subtitle = Resources.Status_Demo_Subtitle,
-                Icon = new IconInfo(InfoGlyph),
-                Tags = [new Tag(Resources.Status_Demo_Tag) { Foreground = DemoBlue }],
-            }
-            : null;
 
     // The severity pill for a degraded status (text + color, same red/amber convention as StatusRow);
     // null for Ok. The hub's provider rows use this to flag a problem without the whole status row.

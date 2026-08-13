@@ -18,8 +18,8 @@ namespace AgentsPanelExtension;
 // longer titles get ellipsized, not scrolled — which is why UiUsageWindow.DockTitle() is so terse.
 //
 // A PURE OBSERVER of the shared usage state: while visible it subscribes to the repository's flow
-// (UsageRepository.ObserveUsage) and renders whatever it emits — nothing else. It does NOT fetch, poll,
-// or handle demo-mode flips itself: the repository owns all of that, so this band can never drift out
+// (UsageRepository.ObserveUsage) and renders whatever it emits — nothing else. It does NOT fetch or
+// poll itself: the repository owns all of that, so this band can never drift out
 // of sync with the hub page observing the same flow. Subscribing also counts the band as an observer,
 // which is what lets the repository poll while the dock is pinned; disposing on hide un-counts it.
 //
@@ -79,7 +79,7 @@ internal sealed partial class UsageDockPage : ListPage, INotifyItemsChanged
     {
         var usages = _usages;
         if (usages is null || usages.Length == 0)
-            return []; // before the first emission / mid demo-flip — the spinner covers this
+            return []; // before the first emission — the spinner covers this
 
         var settings = UsageSettingsManager.Instance;
         var now = DateTimeOffset.UtcNow;
@@ -93,6 +93,10 @@ internal sealed partial class UsageDockPage : ListPage, INotifyItemsChanged
             // to the same instance, so held state survives either entry path.
             var page = _providerPages.GetPage(usage.Snapshot);
 
+            // With multiple providers the terse titles collide ("5h 23%" could be anyone's) — the
+            // provider icon is what identifies a button's owner.
+            var icon = ProviderIcons.For(usage.Snapshot.ProviderId);
+
             foreach (var window in usage.VisibleWindows(settings))
             {
                 // Stale numbers get a terse "!" marker (the title budget has no room for words);
@@ -101,6 +105,7 @@ internal sealed partial class UsageDockPage : ListPage, INotifyItemsChanged
                 {
                     Title = stale is null ? window.DockTitle() : $"{window.DockTitle()} !",
                     Subtitle = stale ?? window.FormatReset(now),
+                    Icon = icon,
                 });
             }
 
@@ -116,7 +121,7 @@ internal sealed partial class UsageDockPage : ListPage, INotifyItemsChanged
                     _ => (Resources.Usage_Empty_Title,
                         Strings.Format(Resources.Status_Error_Title, usage.Snapshot.ProviderDisplayName)),
                 };
-                items.Add(new ListItem(page) { Title = title, Subtitle = subtitle });
+                items.Add(new ListItem(page) { Title = title, Subtitle = subtitle, Icon = icon });
             }
         }
 
@@ -128,7 +133,7 @@ internal sealed partial class UsageDockPage : ListPage, INotifyItemsChanged
     private void OnUsageChanged(IReadOnlyList<DomainUsageSnapshot> snapshots)
     {
         _usages = [.. snapshots.Select(UiUsage.From)];
-        // The empty list is the repository's "loading" state (first run / demo flip in progress).
+        // The empty list is the repository's "loading" state (first run, nothing fetched yet).
         IsLoading = _usages.Length == 0;
         Log.Info("Dock", $"band painted: {_usages.Length} snapshot(s)");
         RaiseItemsChanged(0);

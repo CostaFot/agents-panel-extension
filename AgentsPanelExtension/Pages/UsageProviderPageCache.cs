@@ -5,7 +5,7 @@ namespace AgentsPanelExtension;
 
 // One UsageProviderPage per ProviderId, shared by the hub and the dock so both navigate into the SAME
 // instance and its held state survives (MarketExtension's MarketsPage reuse precedent). Lazy rather
-// than eager because providers appear/disappear across emissions (demo flip, IsAvailable off). Never
+// than eager because providers appear/disappear across emissions (IsAvailable off). Never
 // evicts — a page for a vanished provider is inert: with no ItemsChanged subscriber it holds no
 // repository observer, so it costs nothing.
 //

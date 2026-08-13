@@ -7,13 +7,11 @@ namespace AgentsPanelExtension;
 public partial class AgentsPanelCommandsProvider : CommandProvider
 {
     // The repository coordinates all agent-usage providers; the palette page and the dock band share
-    // this one instance (single source of truth — both observe the same flow). MockUsageProvider is
-    // FIRST but gated on the Demo-mode setting (IsAvailable/IsExclusive are false unless Demo mode is
-    // on), so it takes over everything when demoing and is otherwise skipped. Add a provider here
-    // (ChatGPT, Copilot, ...) to extend coverage — implement IAgentUsageProvider and register it.
+    // this one instance (single source of truth — both observe the same flow). Add a provider here
+    // (Copilot, ...) to extend coverage — implement IAgentUsageProvider and register it.
     private readonly UsageRepository _repository =
-        new(new MockUsageProvider(),
-            new ClaudeUsageProvider());
+        new(new ClaudeUsageProvider(),
+            new CodexUsageProvider());
 
     // One page per provider, shared by the hub and the dock so both navigate into the same instances.
     private readonly UsageProviderPageCache _providerPages;
@@ -27,8 +25,8 @@ public partial class AgentsPanelCommandsProvider : CommandProvider
         DisplayName = Resources.Extension_DisplayName;
         Icon = IconHelpers.FromRelativePath("Assets\\agentspanel_logo_base_square.png");
 
-        // Surface the extension's settings (refresh interval, demo mode, window toggles) in the
-        // Command Palette Settings UI. See Settings/UsageSettingsManager.cs.
+        // Surface the extension's settings (refresh interval, window toggles) in the Command Palette
+        // Settings UI. See Settings/UsageSettingsManager.cs.
         Settings = UsageSettingsManager.Instance.Settings;
 
         _providerPages = new UsageProviderPageCache(_repository);

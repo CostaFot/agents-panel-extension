@@ -5,9 +5,9 @@ just imports this file.
 
 A PowerToys **Command Palette** extension showing AI-agent **usage quotas** — session/weekly % used,
 reset times, plan info — with a pinnable **Dock band** as the main selling point ("5h 23%" / "Wk 41%"
-quick-look buttons). v1 covers **Claude** (Pro/Max subscription limits); the provider architecture is
-open for ChatGPT/Copilot/etc. later. .NET 9 / C# / MSIX, self-contained single-file JIT (trim/AOT
-deliberately OFF).
+quick-look buttons). Covers **Claude** (Pro/Max subscription limits) and **Codex** (ChatGPT
+subscription limits); the provider architecture is open for Copilot/etc. later. .NET 9 / C# / MSIX,
+self-contained single-file JIT (trim/AOT deliberately OFF).
 
 ## Reference project — use it A LOT
 
@@ -29,19 +29,20 @@ Single observable source of truth; every surface OBSERVES, none fetches:
   ON TOP of it (inherits refcounting + the hop; emits null while the provider is absent) — keep it that
   way.
 - `Data/IAgentUsageProvider.cs` — the extension seam: `Id`, `DisplayName`, `IsAvailable` (participates
-  at all — read live), `IsExclusive` (mock takeover in demo), `GetUsageAsync` (**never throws** for
-  expected failures; returns a `UsageStatus`-carrying snapshot). ⚠️ Unlike MarketExtension there is NO
+  at all — read live), `GetUsageAsync` (**never throws** for expected failures; returns a
+  `UsageStatus`-carrying snapshot). ⚠️ Unlike MarketExtension there is NO
   fallback routing: an unconfigured provider stays active and reports `NotConfigured` (rendered as a
   "Sign in" row/button) instead of disappearing — agent providers aren't interchangeable.
-- Registration order in `AgentsPanelCommandsProvider`: `MockUsageProvider` (demo-gated, exclusive) →
-  `ClaudeUsageProvider`. Add providers to that array.
+- Registration order in `AgentsPanelCommandsProvider`: `ClaudeUsageProvider` → `CodexUsageProvider`.
+  Add providers to that array, plus a PNG + case in `Helpers/ProviderIcons.cs` (ProviderId → icon;
+  identifies dock buttons/hub rows — the terse dock titles carry no provider identity).
 - Model layering (MarketExtension convention): `Api*Dto` (wire format, all-nullable) → `Domain*`
   (provider-agnostic, NO formatting) → `Ui*` (`Models/UiUsage.cs` — the ONLY formatting home). Enums
   (`UsageWindowKind`, `UsageStatus`) unprefixed.
 - Surfaces (two-level since 2026-08): `Pages/UsagePage.cs` (hub = **provider list**, one row per
   provider with a "5h 23% · Wk 41%" summary subtitle + worst-window/status pills; also the top-level
   command) → `Pages/UsageProviderPage.cs` (per-provider drill-in: window rows, status/plan rows,
-  demo + Refresh — dock buttons bypass the hub, so those can't be hub-only) → and
+  Refresh — dock buttons bypass the hub, so those can't be hub-only) → and
   `Pages/UsageDockPage.cs` (dock band; each `GetItems()` row = one dock button, title budget
   ~15 chars, **deep-links to that provider's page**). All three implement the explicit
   `INotifyItemsChanged` pattern: subscribe `ObserveUsage(...)` in the event's `add` accessor,
@@ -72,6 +73,28 @@ published tools; it can change or vanish — that's why everything endpoint-spec
 - Endpoint rate-limits hard: poll floor **3 min**, clamped in `UsageSettingsManager.RefreshMinutes`'s
   getter (not just the placeholder). `HttpRetry` honors Retry-After, 3 attempts, 8s bail.
 
+## The Codex data source (Data/Codex/ — deliberately isolated, mirrors Data/Claude/)
+
+`GET https://chatgpt.com/backend-api/wham/usage`, `Authorization: Bearer <access_token>` +
+`ChatGPT-Account-Id: <account_id>` from `%CODEX_HOME%\auth.json` (default `%USERPROFILE%\.codex`),
+honest UA. Same ⚠️ **undocumented, ToS-gray** tier as the Claude endpoint (paths/fields/plan_type
+values have all churned across 2025–2026); reference implementations: openai/codex
+`codex-rs/backend-client` + steipete/CodexBar.
+
+- **Window shape varies BY PLAN** (why `UsageWindowKind` picks from `limit_window_seconds`, never the
+  primary/secondary slot): Plus/Pro report 5h primary + weekly secondary; the Go plan reports ONE
+  30-day primary (→ `Month` kind, "Mo" dock label) and a null secondary. Verified live 2026-08 on Go.
+- Reset time: `reset_at` (epoch seconds) when present, else `now + reset_after_seconds` — both
+  generations exist in the wild.
+- **Never log the token**; read credentials at call time; NO token refresh — a harder no than Claude:
+  Codex **rotates refresh tokens**, so a third-party refresh that doesn't write back perfectly logs
+  the user out of Codex itself. Expired ⇒ `TokenExpired`; Codex's own use refreshes it (~8-day cadence).
+  Plan type + expiry come from the access token's JWT claims (decoded unvalidated, local trust);
+  `id_token`/`refresh_token` are deliberately never deserialized.
+- On this dev machine Codex is the MSIX desktop app (`OpenAI.Codex`) — no `codex` CLI on PATH and
+  WindowsApps ACLs block spawning its bundled codex.exe, which is why the `codex app-server` JSON-RPC
+  route was rejected in favor of direct HTTP.
+
 ## Build & Deploy
 
 `dotnet build AgentsPanelExtension.sln -p:Platform=x64` — ⚠️ without the platform flag MSBuild picks
@@ -100,7 +123,7 @@ So:
 - No hardcoded user-facing strings — `Properties/Resources.resx` + hand-maintained
   `Resources.Designer.cs` (dotnet build does NOT regen it; keep them in lock-step or regen from VS).
 - Logging: `Log.Info/Warn/Error(tag, msg)`, all `[Conditional("DEBUG")]` — Release ships silent.
-- Error surfaces are **status rows** (`Helpers/UsageStatusHint.cs`: blue=demo, red=broken,
+- Error surfaces are **status rows** (`Helpers/UsageStatusHint.cs`: red=broken,
   amber=degraded-self-healing), never toasts for background failures.
 - **Fail loud** on genuinely-wrong states; degrade-and-log for expected external failures.
 
@@ -115,7 +138,8 @@ So:
   `RaiseItemsChanged` is lost. First paint must come from the `add`-accessor subscription replay.
 - ⚠️ **Dock bands require a non-empty command `Id`** or the band silently disappears.
 - ⚠️ **JSON source-gen:** all `[JsonSerializable]` for one context on a SINGLE partial declaration
-  (`Data/Claude/ApiClaudeDtos.cs`) — splitting silently breaks the generator.
+  (`Data/Claude/ApiClaudeDtos.cs`, `Data/Codex/ApiCodexDtos.cs` — one context per provider) —
+  splitting silently breaks the generator.
 - ⚠️ **`TextSetting` renders `Description` as the on-screen label** (Label is ignored by Input.Text).
 - **PollTicker source operators must never throw** — a throw OnErrors the multicast and kills polling
   for every subscriber until reload. Settings reads stay parse-with-fallback.

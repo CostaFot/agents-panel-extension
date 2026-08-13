@@ -109,12 +109,10 @@ internal sealed partial class UsagePage : ListPage, INotifyItemsChanged
             {
                 Title = usage.Snapshot.ProviderDisplayName,
                 Subtitle = subtitle,
+                Icon = ProviderIcons.For(usage.Snapshot.ProviderId),
                 Tags = [.. tags],
             });
         }
-
-        if (UsageStatusHint.DemoRow() is { } demo)
-            items.Add(demo);
 
         items.Add(new ListItem(_refreshCommand) { Title = Resources.Action_Refresh });
         items.Add(new ListItem(UsageSettingsManager.Instance.Settings.SettingsPage)
@@ -136,7 +134,7 @@ internal sealed partial class UsagePage : ListPage, INotifyItemsChanged
     private void OnUsageChanged(IReadOnlyList<DomainUsageSnapshot> snapshots)
     {
         _snapshots = [.. snapshots.Select(UiUsage.From)];
-        // The empty list is the repository's "loading" state (cleared on demo flip / first run).
+        // The empty list is the repository's "loading" state (first run, nothing fetched yet).
         IsLoading = _snapshots.Length == 0;
         Log.Info("UsagePage", $"usage painted: {_snapshots.Length} snapshot(s)");
         RaiseItemsChanged(0);

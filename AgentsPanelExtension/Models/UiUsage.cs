@@ -23,6 +23,7 @@ internal sealed record UiUsageWindow(DomainUsageWindow Window)
     {
         UsageWindowKind.Session => Resources.Window_Session_Short,
         UsageWindowKind.Week => Resources.Window_Week_Short,
+        UsageWindowKind.Month => Resources.Window_Month_Short,
         UsageWindowKind.ModelWeek => Window.Qualifier ?? Resources.Window_Week_Short,
         UsageWindowKind.ExtraUsage => Resources.Window_Extra_Short,
         _ => Window.Id,
@@ -33,6 +34,7 @@ internal sealed record UiUsageWindow(DomainUsageWindow Window)
     {
         UsageWindowKind.Session => Resources.Window_Session_Long,
         UsageWindowKind.Week => Resources.Window_Week_Long,
+        UsageWindowKind.Month => Resources.Window_Month_Long,
         UsageWindowKind.ModelWeek => Strings.Format(Resources.Window_ModelWeek_Long, Window.Qualifier ?? "?"),
         UsageWindowKind.ExtraUsage => Resources.Window_Extra_Long,
         _ => Window.Id,

@@ -169,33 +169,6 @@ namespace AgentsPanelExtension.Properties {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Demo mode.
-        /// </summary>
-        public static string Status_Demo_Title {
-            get {
-                return ResourceManager.GetString("Status_Demo_Title", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Showing sample usage data — turn off in settings.
-        /// </summary>
-        public static string Status_Demo_Subtitle {
-            get {
-                return ResourceManager.GetString("Status_Demo_Subtitle", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Demo.
-        /// </summary>
-        public static string Status_Demo_Tag {
-            get {
-                return ResourceManager.GetString("Status_Demo_Tag", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to Can't reach {0}.
         /// </summary>
         public static string Status_Error_Title {
@@ -232,7 +205,7 @@ namespace AgentsPanelExtension.Properties {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to No local sign-in found — log in via the agent's app (e.g. Claude Code).
+        ///   Looks up a localized string similar to No local sign-in found — log in via the agent's own app.
         /// </summary>
         public static string Status_NotSignedIn_Subtitle {
             get {
@@ -286,7 +259,7 @@ namespace AgentsPanelExtension.Properties {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Open the agent's app (e.g. Claude Code) to refresh it.
+        ///   Looks up a localized string similar to Open the agent's own app to refresh it.
         /// </summary>
         public static string Status_TokenExpired_Subtitle {
             get {
@@ -345,6 +318,24 @@ namespace AgentsPanelExtension.Properties {
         public static string Window_ModelWeek_Long {
             get {
                 return ResourceManager.GetString("Window_ModelWeek_Long", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Monthly (30-day).
+        /// </summary>
+        public static string Window_Month_Long {
+            get {
+                return ResourceManager.GetString("Window_Month_Long", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Mo.
+        /// </summary>
+        public static string Window_Month_Short {
+            get {
+                return ResourceManager.GetString("Window_Month_Short", resourceCulture);
             }
         }
 
@@ -408,24 +399,6 @@ namespace AgentsPanelExtension.Properties {
         public static string Page_Usage_Title {
             get {
                 return ResourceManager.GetString("Page_Usage_Title", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Show built-in sample usage data (no account or network needed).
-        /// </summary>
-        public static string Settings_Demo_Desc {
-            get {
-                return ResourceManager.GetString("Settings_Demo_Desc", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Demo mode.
-        /// </summary>
-        public static string Settings_Demo_Label {
-            get {
-                return ResourceManager.GetString("Settings_Demo_Label", resourceCulture);
             }
         }
 
