@@ -23,7 +23,9 @@ internal sealed record UiUsageWindow(DomainUsageWindow Window)
     {
         UsageWindowKind.Session => Resources.Window_Session_Short,
         UsageWindowKind.Week => Resources.Window_Week_Short,
-        UsageWindowKind.Month => Resources.Window_Month_Short,
+        // A Month window's Qualifier disambiguates multiple monthly buckets (Copilot's "Chat" /
+        // "Code") the same way ModelWeek's does; unqualified stays plain "Mo".
+        UsageWindowKind.Month => Window.Qualifier ?? Resources.Window_Month_Short,
         UsageWindowKind.ModelWeek => Window.Qualifier ?? Resources.Window_Week_Short,
         UsageWindowKind.ExtraUsage => Resources.Window_Extra_Short,
         _ => Window.Id,
@@ -34,7 +36,9 @@ internal sealed record UiUsageWindow(DomainUsageWindow Window)
     {
         UsageWindowKind.Session => Resources.Window_Session_Long,
         UsageWindowKind.Week => Resources.Window_Week_Long,
-        UsageWindowKind.Month => Resources.Window_Month_Long,
+        UsageWindowKind.Month => Window.Qualifier is { } qualifier
+            ? Strings.Format(Resources.Window_MonthQualified_Long, qualifier)
+            : Resources.Window_Month_Long,
         UsageWindowKind.ModelWeek => Strings.Format(Resources.Window_ModelWeek_Long, Window.Qualifier ?? "?"),
         UsageWindowKind.ExtraUsage => Resources.Window_Extra_Long,
         _ => Window.Id,
@@ -54,9 +58,16 @@ internal sealed record UiUsageWindow(DomainUsageWindow Window)
     {
         if (Window.Kind == UsageWindowKind.ExtraUsage)
         {
-            return Window is { Used: { } used, Limit: { } limit }
-                ? Strings.Format(Resources.Extra_UsedOfLimit, FormatDollars(used), FormatDollars(limit))
-                : string.Empty;
+            // Both bounds → "$x of $y" (Claude credits, verified USD). Used only → a bare "n used"
+            // (Copilot AI credits: the cap isn't reported and the unit is unverified, so no $).
+            return Window switch
+            {
+                { Used: { } used, Limit: { } limit } =>
+                    Strings.Format(Resources.Extra_UsedOfLimit, FormatDollars(used), FormatDollars(limit)),
+                { Used: { } used } =>
+                    Strings.Format(Resources.Extra_Used, used.ToString("0.##", CultureInfo.InvariantCulture)),
+                _ => string.Empty,
+            };
         }
 
         if (Window.ResetsAt is not { } resetsAt)

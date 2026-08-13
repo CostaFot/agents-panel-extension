@@ -88,6 +88,9 @@
   <data name="Window_Month_Long" xml:space="preserve">
     <value>Monthly (30-day)</value>
   </data>
+  <data name="Window_MonthQualified_Long" xml:space="preserve">
+    <value>Monthly — {0}</value>
+  </data>
   <data name="Window_ModelWeek_Long" xml:space="preserve">
     <value>Weekly — {0}</value>
   </data>
@@ -111,6 +114,9 @@
   </data>
   <data name="Extra_UsedOfLimit" xml:space="preserve">
     <value>{0} of {1} used</value>
+  </data>
+  <data name="Extra_Used" xml:space="preserve">
+    <value>{0} used</value>
   </data>
   <data name="Stale_AsOf" xml:space="preserve">
     <value>stale — as of {0}</value>
@@ -189,5 +195,11 @@
   </data>
   <data name="Settings_ShowExtraUsage_Desc" xml:space="preserve">
     <value>Show the extra-usage credits balance when enabled on the account</value>
+  </data>
+  <data name="Settings_CopilotToken_Label" xml:space="preserve">
+    <value>Copilot GitHub token</value>
+  </data>
+  <data name="Settings_CopilotToken_Desc" xml:space="preserve">
+    <value>GitHub token for Copilot usage (optional — blank uses your gh CLI / Copilot sign-in)</value>
   </data>
 </root>

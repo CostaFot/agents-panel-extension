@@ -12,7 +12,8 @@ public partial class AgentsPanelCommandsProvider : CommandProvider
     // dock band.
     private static readonly IAgentUsageProvider[] Providers =
         [new ClaudeUsageProvider(),
-         new CodexUsageProvider()];
+         new CodexUsageProvider(),
+         new CopilotUsageProvider()];
 
     // The repository coordinates all agent-usage providers; the palette page and the dock bands share
     // this one instance (single source of truth — all surfaces observe the same flow).

@@ -142,6 +142,15 @@ namespace AgentsPanelExtension.Properties {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to {0} used.
+        /// </summary>
+        public static string Extra_Used {
+            get {
+                return ResourceManager.GetString("Extra_Used", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Plan — {0}.
         /// </summary>
         public static string Plan_Title {
@@ -322,6 +331,15 @@ namespace AgentsPanelExtension.Properties {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Monthly — {0}.
+        /// </summary>
+        public static string Window_MonthQualified_Long {
+            get {
+                return ResourceManager.GetString("Window_MonthQualified_Long", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Monthly (30-day).
         /// </summary>
         public static string Window_Month_Long {
@@ -453,6 +471,24 @@ namespace AgentsPanelExtension.Properties {
         public static string Settings_ShowModelWindows_Label {
             get {
                 return ResourceManager.GetString("Settings_ShowModelWindows_Label", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to GitHub token for Copilot usage (optional — blank uses your gh CLI / Copilot sign-in).
+        /// </summary>
+        public static string Settings_CopilotToken_Desc {
+            get {
+                return ResourceManager.GetString("Settings_CopilotToken_Desc", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Copilot GitHub token.
+        /// </summary>
+        public static string Settings_CopilotToken_Label {
+            get {
+                return ResourceManager.GetString("Settings_CopilotToken_Label", resourceCulture);
             }
         }
     }

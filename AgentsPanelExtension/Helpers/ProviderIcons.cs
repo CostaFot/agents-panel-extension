@@ -12,12 +12,14 @@ internal static class ProviderIcons
 {
     private static readonly IconInfo Claude = IconHelpers.FromRelativePath("Assets\\provider_claude.png");
     private static readonly IconInfo Codex = IconHelpers.FromRelativePath("Assets\\provider_codex.png");
+    private static readonly IconInfo Copilot = IconHelpers.FromRelativePath("Assets\\provider_copilot.png");
     private static readonly IconInfo Fallback = IconHelpers.FromRelativePath("Assets\\agentspanel_logo_base_square.png");
 
     public static IconInfo For(string providerId) => providerId switch
     {
         "claude" => Claude,
         "codex" => Codex,
+        "copilot" => Copilot,
         _ => Fallback,
     };
 }

@@ -50,6 +50,16 @@ internal sealed class UsageSettingsManager : JsonSettingsManager
         Description = Resources.Settings_ShowExtraUsage_Desc,
     };
 
+    // Optional explicit GitHub token for the Copilot provider (e.g. a fine-grained PAT with
+    // "Copilot Requests: Read"). Blank by default — CopilotCredentialsReader then falls back to the
+    // tokens gh CLI / Copilot CLI / the editor plugins already left on the machine. ⚠️ Persisted in
+    // plain text in agentspanel.settings.json (same trust level as the credential files it replaces).
+    private readonly TextSetting _copilotToken = new("copilotToken", string.Empty)
+    {
+        Label = Resources.Settings_CopilotToken_Label,
+        Description = Resources.Settings_CopilotToken_Desc,
+    };
+
     // Auto-refresh cadence in minutes; 0 means off. Bad/negative input falls back to the default, and a
     // positive value below the floor is clamped up to it (see MinRefreshMinutes) — enforced HERE so no
     // caller can accidentally poll the endpoint harder than the floor allows.
@@ -71,12 +81,18 @@ internal sealed class UsageSettingsManager : JsonSettingsManager
     // Whether the extra-usage credits window renders. Read pull-style each render.
     public bool ShowExtraUsage => _showExtraUsage.Value;
 
+    // The user's explicit Copilot token, or null when blank/whitespace. Read pull-style each fetch.
+    // NEVER log the value.
+    public string? CopilotToken =>
+        string.IsNullOrWhiteSpace(_copilotToken.Value) ? null : _copilotToken.Value.Trim();
+
     private UsageSettingsManager()
     {
         FilePath = Path.Combine(Utilities.BaseSettingsPath("Microsoft.CmdPal"), "agentspanel.settings.json");
         Settings.Add(_refreshMinutes);
         Settings.Add(_showModelWindows);
         Settings.Add(_showExtraUsage);
+        Settings.Add(_copilotToken);
         LoadSettings();
         Settings.SettingsChanged += (_, _) => SaveSettings();
     }
