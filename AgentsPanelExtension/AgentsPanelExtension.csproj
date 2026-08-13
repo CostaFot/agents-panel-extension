@@ -1,0 +1,109 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>AgentsPanelExtension</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+
+    <WindowsSdkPackageVersion>10.0.26100.68-preview</WindowsSdkPackageVersion>
+    <TargetFramework>net9.0-windows10.0.26100.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.26100.0</TargetPlatformMinVersion>
+    <SupportedOSPlatformVersion>10.0.26100.0</SupportedOSPlatformVersion>
+    <RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
+
+    <AppxPackageIdentityName>CostaFotiadis.AgentsPanelforCommandPalette</AppxPackageIdentityName>
+    <AppxPackagePublisher>CN=3D57AA92-97A9-42D2-8CB0-4207D9145514</AppxPackagePublisher>
+    <AppxPackageVersion>0.1.0.0</AppxPackageVersion>
+    <EnableMsixTooling>true</EnableMsixTooling>
+    <Nullable>enable</Nullable>
+
+    <!-- The neutral (built-in) resources in Properties/Resources.resx are English, so mark the main
+         assembly en-US: ResourceManager then serves English directly without probing for an en
+         satellite. Ship another language by adding a Resources.<culture>.resx (satellite); see Helpers/Strings.cs. -->
+    <NeutralLanguage>en-US</NeutralLanguage>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\**\*.png" />
+  </ItemGroup>
+
+  <!-- Strongly-typed string resources. Properties\Resources.resx is the neutral (English) string
+       table; Visual Studio's PublicResXFileCodeGenerator regenerates Properties\Resources.Designer.cs
+       (a public `Resources` class with one property per key) on edit. The Designer file is checked in
+       so `dotnet build` (which does NOT run the design-time generator) still compiles — regenerate it
+       from VS after editing the resx, or keep it hand-maintained in lock-step with the resx. -->
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+  </ItemGroup>
+
+  <Target Name="PrepareAssets" BeforeTargets="BeforeBuild">
+    <!-- Copy scale-specific assets to base filenames expected by store validations -->
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\Assets\Square150x150Logo.scale-200.png" DestinationFiles="$(MSBuildProjectDirectory)\Assets\Square150x150Logo.png" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\Assets\Square44x44Logo.scale-200.png" DestinationFiles="$(MSBuildProjectDirectory)\Assets\SmallTile.png" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\Assets\Wide310x150Logo.scale-200.png" DestinationFiles="$(MSBuildProjectDirectory)\Assets\Wide310x150Logo.png" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\Assets\SplashScreen.scale-200.png" DestinationFiles="$(MSBuildProjectDirectory)\Assets\SplashScreen.png" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\Assets\Square150x150Logo.scale-200.png" DestinationFiles="$(MSBuildProjectDirectory)\Assets\LargeTile.png" SkipUnchangedFiles="true" />
+    <!-- StoreLogo.png already exists at the correct path, no copy needed -->
+  </Target>
+
+  <ItemGroup>
+    <Manifest Include="$(ApplicationManifest)" />
+  </ItemGroup>
+
+  <!--
+    Defining the "Msix" ProjectCapability here allows the Single-project MSIX Packaging
+    Tools extension to be activated for this project even if the Windows App SDK Nuget
+    package has not yet been restored.
+  -->
+  <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+    <ProjectCapability Include="Msix" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CommandPalette.Extensions" />
+    <PackageReference Include="Microsoft.Windows.CsWinRT" />
+    <PackageReference Include="Shmuelie.WinRTServer" />
+    <PackageReference Include="System.Reactive" />
+
+    <!-- Needed to enable building an MSIX package -->
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools.MSIX">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <!--
+    Defining the "HasPackageAndPublishMenuAddedByProject" property here allows the Solution
+    Explorer "Package and Publish" context menu entry to be enabled for this project even if
+    the Windows App SDK Nuget package has not yet been restored.
+  -->
+  <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+    <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
+  </PropertyGroup>
+
+  <!--
+    This extension intentionally does NOT trim or Native-AOT compile. It ships as a self-contained,
+    single-file, JIT package (the same shape MarketExtension publishes to the Store), and enabling
+    trimming/AOT is a deliberate non-goal: for a build that never trims, the trim/AOT analyzer
+    warnings (IL2026/IL3050/CsWinRT####) are pure noise, and leaving them off lets us freely use
+    reflection-based code (e.g. System.Reactive) with a clean build.
+  -->
+  <PropertyGroup>
+    <PublishSingleFile Condition="'$(RuntimeIdentifier)' != ''">true</PublishSingleFile>
+    <PublishTrimmed>false</PublishTrimmed>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'!='Debug'">
+    <SelfContained>true</SelfContained>
+  </PropertyGroup>
+
+  <!-- No build-time secrets: the extension reads the local Claude Code credentials at RUNTIME only
+       (Data/Claude/ClaudeCredentialsReader.cs) and nothing is baked into the package. -->
+
+</Project>
