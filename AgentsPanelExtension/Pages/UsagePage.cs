@@ -24,10 +24,12 @@ namespace AgentsPanelExtension;
 internal sealed partial class UsagePage : ListPage, INotifyItemsChanged
 {
     private const string SettingsGlyph = "\uE713"; // Segoe MDL2 Settings
+    private const string LegalGlyph = "\uE9F9";    // Segoe MDL2 ReportDocument
 
     private readonly UsageRepository _repository;
     private readonly UsageProviderPageCache _providerPages;
     private readonly RefreshUsageCommand _refreshCommand;
+    private readonly LegalPage _legalPage = new(); // static disclaimer screen \u2014 no lifecycle
     private UiUsage[]? _snapshots; // latest emission, projected for rendering; null before the first
 
     private event TypedEventHandler<object, IItemsChangedEventArgs>? _itemsChanged;
@@ -119,6 +121,11 @@ internal sealed partial class UsagePage : ListPage, INotifyItemsChanged
         {
             Title = Resources.Action_Settings,
             Icon = new IconInfo(SettingsGlyph),
+        });
+        items.Add(new ListItem(_legalPage)
+        {
+            Title = Resources.Page_Legal_Title,
+            Icon = new IconInfo(LegalGlyph),
         });
 
         return [.. items];

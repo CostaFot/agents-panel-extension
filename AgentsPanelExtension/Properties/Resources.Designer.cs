@@ -79,6 +79,24 @@ namespace AgentsPanelExtension.Properties {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Open.
+        /// </summary>
+        public static string Action_Open {
+            get {
+                return ResourceManager.GetString("Action_Open", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The legal bit.
+        /// </summary>
+        public static string Page_Legal_Title {
+            get {
+                return ResourceManager.GetString("Page_Legal_Title", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to {0} sign-in needs a refresh.
         /// </summary>
         public static string Dock_Expired_Subtitle {

@@ -73,6 +73,12 @@
   <data name="Action_Settings" xml:space="preserve">
     <value>Settings</value>
   </data>
+  <data name="Action_Open" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="Page_Legal_Title" xml:space="preserve">
+    <value>The legal bit</value>
+  </data>
   <data name="Window_Session_Long" xml:space="preserve">
     <value>Session (5-hour)</value>
   </data>
