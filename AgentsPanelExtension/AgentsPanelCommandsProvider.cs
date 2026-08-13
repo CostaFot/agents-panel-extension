@@ -15,6 +15,9 @@ public partial class AgentsPanelCommandsProvider : CommandProvider
         new(new MockUsageProvider(),
             new ClaudeUsageProvider());
 
+    // One page per provider, shared by the hub and the dock so both navigate into the same instances.
+    private readonly UsageProviderPageCache _providerPages;
+
     private readonly ICommandItem[] _commands;
     private readonly ICommandItem[] _dockBands;
 
@@ -28,15 +31,18 @@ public partial class AgentsPanelCommandsProvider : CommandProvider
         // Command Palette Settings UI. See Settings/UsageSettingsManager.cs.
         Settings = UsageSettingsManager.Instance.Settings;
 
-        // A single top-level "Agents Panel" command that opens the usage hub, keeping the Command
-        // Palette root to one entry. The page is constructed once and reused so its held state
-        // survives navigating in and out.
+        _providerPages = new UsageProviderPageCache(_repository);
+
+        // A single top-level "Agents Panel" command that opens the provider-list hub, keeping the
+        // Command Palette root to one entry. The page is constructed once and reused so its held
+        // state survives navigating in and out.
         _commands = [
-            new CommandItem(new UsagePage(_repository)) { Title = Resources.Command_AgentsPanel },
+            new CommandItem(new UsagePage(_repository, _providerPages)) { Title = Resources.Command_AgentsPanel },
         ];
 
         // The dock band — the extension's main selling point: pinnable quick-look usage buttons
-        // ("5h 23%" / "Wk 41%") that live-update while pinned and click through to the hub.
+        // ("5h 23%" / "Wk 41%") that live-update while pinned and click through to their provider's
+        // page.
         //
         // Threading note (inherited from MarketExtension, where this crashed CmdPal): the band's
         // repository subscription must never deliver synchronously under an Rx lock, because
@@ -44,7 +50,7 @@ public partial class AgentsPanelCommandsProvider : CommandProvider
         // hang. UsageRepository.ObserveUsage ends in ObserveOn(TaskPoolScheduler) for exactly this
         // reason — surfaces are notified only after the locks release. Do not remove that hop.
         _dockBands = [
-            new CommandItem(new UsageDockPage(_repository)) { Title = Resources.Command_AgentsPanel },
+            new CommandItem(new UsageDockPage(_repository, _providerPages)) { Title = Resources.Command_AgentsPanel },
         ];
     }
 

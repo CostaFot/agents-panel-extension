@@ -58,10 +58,23 @@ published tools; it can change or vanish — that's why everything endpoint-spec
 ## Build & Deploy
 
 `dotnet build AgentsPanelExtension.sln -p:Platform=x64` — ⚠️ without the platform flag MSBuild picks
-**ARM64** (alphabetically first in the sln) on this x64 machine and the package won't deploy. Quick dev
-loop without VS: `Add-AppxPackage -Register bin\x64\Debug\net9.0-windows10.0.26100.0\AppxManifest.xml`
-(loose-layout dev registration; needs Developer Mode), then reload Command Palette. Or deploy from VS
-("(Package)" profile, doNotLaunchApp). Settings persist to `…\Microsoft.CmdPal\agentspanel.settings.json`.
+**ARM64** (alphabetically first in the sln) on this x64 machine and the package won't deploy.
+Settings persist to `…\Microsoft.CmdPal\agentspanel.settings.json`.
+
+⚠️ **Claude: BUILD ONLY — never deploy/register the package.** The developer runs and deploys the
+extension from **Rider**; deployment is their job, not Claude's. Verification stops at a clean
+`dotnet build` — after that, tell the user "ready to deploy from Rider" and let them click through.
+Lesson learned (2026-08): Claude ran `Add-AppxPackage -Register` over an existing Rider deployment —
+it first failed with 0x80073D02 (package files locked by the running `AgentsPanelExtension.exe`;
+that lock is EXPECTED, not a problem to bulldoze), then after force-killing the process the register
+"succeeded" and left **three duplicate "Agents Panel" entries** in the palette; the user had to
+uninstall everything and redeploy from Rider to recover. So:
+
+- Do NOT run `Add-AppxPackage` (any form), and do NOT `Stop-Process` the extension to free the
+  package — a locked package means a live deployment that isn't Claude's to replace.
+- Even if the user explicitly asks Claude to deploy: first check the existing install with
+  `Get-AppxPackage -Name '*AgentsPanel*'`, and if one exists, confirm they want it replaced
+  (they'll likely need to remove it and redeploy from Rider afterwards).
 
 ## Project conventions
 

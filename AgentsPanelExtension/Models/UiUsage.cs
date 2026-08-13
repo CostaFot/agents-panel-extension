@@ -88,6 +88,25 @@ internal sealed record UiUsage(DomainUsageSnapshot Snapshot)
     public IReadOnlyList<UiUsageWindow> Windows { get; } =
         [.. Snapshot.Windows.OrderBy(w => w.Kind).Select(w => new UiUsageWindow(w))];
 
+    // The windows that survive the ShowModelWindows / ShowExtraUsage settings filters — the single home
+    // for that filter, shared by the hub summary, the provider page rows, and the dock buttons.
+    public IEnumerable<UiUsageWindow> VisibleWindows(UsageSettingsManager settings) =>
+        Windows.Where(w =>
+            (w.Window.Kind != UsageWindowKind.ModelWeek || settings.ShowModelWindows)
+            && (w.Window.Kind != UsageWindowKind.ExtraUsage || settings.ShowExtraUsage));
+
+    // One-line summary for the provider's hub row: the dock titles joined — "5h 23% · Wk 41%".
+    // Null when no windows survive the filter, so callers can fall back to status/empty text.
+    public string? SummaryText(UsageSettingsManager settings)
+    {
+        var summary = string.Join(" · ", VisibleWindows(settings).Select(w => w.DockTitle()));
+        return summary.Length > 0 ? summary : null;
+    }
+
+    // The highest-utilization visible window — drives the hub row's severity-colored percent pill.
+    public UiUsageWindow? WorstVisibleWindow(UsageSettingsManager settings) =>
+        VisibleWindows(settings).OrderByDescending(w => w.Window.Utilization).FirstOrDefault();
+
     // "stale · as of 17:02" — shown on window rows when the numbers survived a failed refresh
     // (keep-last-good); null when the snapshot is fresh.
     public string? StaleText()

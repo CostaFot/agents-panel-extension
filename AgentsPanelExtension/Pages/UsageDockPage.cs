@@ -9,7 +9,8 @@ using Windows.Foundation;
 namespace AgentsPanelExtension;
 
 // Backs the Command Palette Dock band — the extension's main selling point: a quick-look strip of
-// usage buttons (e.g. "5h 23%" / "Wk 41%"); clicking any of them opens the Agents Panel hub.
+// usage buttons (e.g. "5h 23%" / "Wk 41%"); clicking one opens that provider's page (the same cached
+// UsageProviderPage instance the hub's provider rows navigate to).
 // Returned from AgentsPanelCommandsProvider.GetDockBands() wrapped in a CommandItem.
 //
 // Because the band's command is an IListPage, the host renders each item from GetItems() as its own
@@ -28,8 +29,8 @@ namespace AgentsPanelExtension;
 internal sealed partial class UsageDockPage : ListPage, INotifyItemsChanged
 {
     private readonly UsageRepository _repository;
-    private readonly UsagePage _hubPage; // one instance reused by every button — click → the hub
-    private UiUsage[]? _usages;          // latest emission, projected for rendering; null before the first
+    private readonly UsageProviderPageCache _providerPages; // click → that provider's page
+    private UiUsage[]? _usages; // latest emission, projected for rendering; null before the first
 
     private event TypedEventHandler<object, IItemsChangedEventArgs>? _itemsChanged;
 
@@ -65,10 +66,10 @@ internal sealed partial class UsageDockPage : ListPage, INotifyItemsChanged
     private new void RaiseItemsChanged(int totalItems = -1)
         => _itemsChanged?.Invoke(this, new ItemsChangedEventArgs(totalItems));
 
-    public UsageDockPage(UsageRepository repository)
+    public UsageDockPage(UsageRepository repository, UsageProviderPageCache providerPages)
     {
         _repository = repository;
-        _hubPage = new UsagePage(repository);
+        _providerPages = providerPages;
         Id = "com.costafotiadis.agentspanel.dock.usage"; // dock bands require a non-empty command Id
         Title = Resources.Command_AgentsPanel;
         Icon = IconHelpers.FromRelativePath("Assets\\agentspanel_logo_base_square.png");
@@ -88,16 +89,15 @@ internal sealed partial class UsageDockPage : ListPage, INotifyItemsChanged
         {
             var stale = usage.StaleText();
 
-            foreach (var window in usage.Windows)
-            {
-                if (window.Window.Kind == UsageWindowKind.ModelWeek && !settings.ShowModelWindows)
-                    continue;
-                if (window.Window.Kind == UsageWindowKind.ExtraUsage && !settings.ShowExtraUsage)
-                    continue;
+            // Every button for this provider navigates into its (cached) page — the hub's rows link
+            // to the same instance, so held state survives either entry path.
+            var page = _providerPages.GetPage(usage.Snapshot);
 
+            foreach (var window in usage.VisibleWindows(settings))
+            {
                 // Stale numbers get a terse "!" marker (the title budget has no room for words);
                 // the subtitle carries the explanation.
-                items.Add(new ListItem(_hubPage)
+                items.Add(new ListItem(page)
                 {
                     Title = stale is null ? window.DockTitle() : $"{window.DockTitle()} !",
                     Subtitle = stale ?? window.FormatReset(now),
@@ -116,7 +116,7 @@ internal sealed partial class UsageDockPage : ListPage, INotifyItemsChanged
                     _ => (Resources.Usage_Empty_Title,
                         Strings.Format(Resources.Status_Error_Title, usage.Snapshot.ProviderDisplayName)),
                 };
-                items.Add(new ListItem(_hubPage) { Title = title, Subtitle = subtitle });
+                items.Add(new ListItem(page) { Title = title, Subtitle = subtitle });
             }
         }
 

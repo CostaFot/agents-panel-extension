@@ -40,6 +40,28 @@ internal static class UsageStatusHint
             }
             : null;
 
+    // The severity pill for a degraded status (text + color, same red/amber convention as StatusRow);
+    // null for Ok. The hub's provider rows use this to flag a problem without the whole status row.
+    public static Tag? StatusTag(UsageStatus status) => status switch
+    {
+        UsageStatus.Ok => null,
+        UsageStatus.NotConfigured => new Tag(Resources.Status_NotSignedIn_Tag) { Foreground = WarningRed },
+        UsageStatus.TokenExpired => new Tag(Resources.Status_TokenExpired_Tag) { Foreground = WarningRed },
+        UsageStatus.RateLimited => new Tag(Resources.Status_RateLimited_Tag) { Foreground = DegradedAmber },
+        _ => new Tag(Resources.Status_Error_Tag) { Foreground = DegradedAmber },
+    };
+
+    // The one-line explanation for a degraded status — the hub row's subtitle when a provider has no
+    // windows to summarize; null for Ok.
+    public static string? StatusSubtitle(UsageStatus status) => status switch
+    {
+        UsageStatus.Ok => null,
+        UsageStatus.NotConfigured => Resources.Status_NotSignedIn_Subtitle,
+        UsageStatus.TokenExpired => Resources.Status_TokenExpired_Subtitle,
+        UsageStatus.RateLimited => Resources.Status_RateLimited_Subtitle,
+        _ => Resources.Status_Error_Subtitle,
+    };
+
     // The per-snapshot problem row, or null when the snapshot is Ok. Shown INSTEAD of window rows when
     // there's nothing to show (never signed in), or UNDER them when stale numbers survived
     // (keep-last-good: rate-limited/error/expired with old windows still rendering above).
@@ -49,37 +71,26 @@ internal static class UsageStatusHint
         return snapshot.Status switch
         {
             UsageStatus.Ok => null,
-            UsageStatus.NotConfigured => Row(
-                Strings.Format(Resources.Status_NotSignedIn_Title, name),
-                Resources.Status_NotSignedIn_Subtitle,
-                Resources.Status_NotSignedIn_Tag, WarningRed,
-                $"com.costafotiadis.agentspanel.status.{snapshot.ProviderId}.signin"),
-            UsageStatus.TokenExpired => Row(
-                Strings.Format(Resources.Status_TokenExpired_Title, name),
-                Resources.Status_TokenExpired_Subtitle,
-                Resources.Status_TokenExpired_Tag, WarningRed,
-                $"com.costafotiadis.agentspanel.status.{snapshot.ProviderId}.expired"),
-            UsageStatus.RateLimited => Row(
-                Strings.Format(Resources.Status_RateLimited_Title, name),
-                Resources.Status_RateLimited_Subtitle,
-                Resources.Status_RateLimited_Tag, DegradedAmber,
-                $"com.costafotiadis.agentspanel.status.{snapshot.ProviderId}.ratelimited"),
-            _ => Row(
-                Strings.Format(Resources.Status_Error_Title, name),
-                Resources.Status_Error_Subtitle,
-                Resources.Status_Error_Tag, DegradedAmber,
-                $"com.costafotiadis.agentspanel.status.{snapshot.ProviderId}.error"),
+            UsageStatus.NotConfigured => Row(snapshot,
+                Strings.Format(Resources.Status_NotSignedIn_Title, name), "signin"),
+            UsageStatus.TokenExpired => Row(snapshot,
+                Strings.Format(Resources.Status_TokenExpired_Title, name), "expired"),
+            UsageStatus.RateLimited => Row(snapshot,
+                Strings.Format(Resources.Status_RateLimited_Title, name), "ratelimited"),
+            _ => Row(snapshot,
+                Strings.Format(Resources.Status_Error_Title, name), "error"),
         };
     }
 
     // Status rows are informational — there is nothing useful for Enter to do (we can't sign the user
-    // in), so a NoOpCommand with a stable non-empty Id.
-    private static ListItem Row(string title, string subtitle, string tag, OptionalColor color, string id) =>
-        new(new NoOpCommand { Id = id })
+    // in), so a NoOpCommand with a stable non-empty Id. Subtitle and pill come from the per-status
+    // helpers above so the text/colors stay defined once.
+    private static ListItem Row(DomainUsageSnapshot snapshot, string title, string kind) =>
+        new(new NoOpCommand { Id = $"com.costafotiadis.agentspanel.status.{snapshot.ProviderId}.{kind}" })
         {
             Title = title,
-            Subtitle = subtitle,
+            Subtitle = StatusSubtitle(snapshot.Status) ?? string.Empty,
             Icon = new IconInfo(WarningGlyph),
-            Tags = [new Tag(tag) { Foreground = color }],
+            Tags = StatusTag(snapshot.Status) is { } tag ? [tag] : [],
         };
 }

@@ -82,6 +82,13 @@ internal sealed class UsageRepository
             })
             .ObserveOn(TaskPoolScheduler.Default);
 
+    // Per-provider projection of the same flow: inherits the observer refcounting and the load-bearing
+    // ObserveOn hop above (Select runs after the hop, so delivery stays on the pool thread). Emits null
+    // while the provider is absent from the list (loading / demo flip / IsAvailable off).
+    public IObservable<DomainUsageSnapshot?> ObserveUsage(string providerId) =>
+        ObserveUsage().Select(snapshots =>
+            snapshots.FirstOrDefault(s => string.Equals(s.ProviderId, providerId, StringComparison.Ordinal)));
+
     // User-initiated refresh (the hub's "Refresh now" row): always fetches, observers or not.
     public void RefreshNow() => Refresh("manual");
 

@@ -8,9 +8,11 @@ using Windows.Foundation;
 
 namespace AgentsPanelExtension;
 
-// The hub page — opened by the single top-level "Agents Panel" command. One row per quota window
-// (title = window name, colored percent pill, subtitle = reset time), then per-provider status rows,
-// then Refresh / Settings.
+// The hub page — opened by the single top-level "Agents Panel" command. One row per PROVIDER
+// (title = provider name, subtitle = compact summary like "5h 23% · Wk 41%", worst-window percent
+// pill), each navigating into that provider's UsageProviderPage, then Refresh / Settings. The
+// per-window detail lives on the provider pages — with more providers than Claude on the way, the
+// hub can't be a flat dump of every window of every provider.
 //
 // A PURE OBSERVER of the repository's snapshot state: while open it subscribes to ObserveUsage() and
 // renders whatever it emits — it does NOT fetch or poll itself, so it can never drift from the dock
@@ -21,12 +23,10 @@ namespace AgentsPanelExtension;
 // therefore RaiseItemsChanged — runs on a pool thread with NO Rx lock held. Do not add Task.Run here.
 internal sealed partial class UsagePage : ListPage, INotifyItemsChanged
 {
-    private const string SessionGlyph = "\uE823";  // Segoe MDL2 Recent (clock)
-    private const string WeekGlyph = "\uE787";     // Segoe MDL2 Calendar
-    private const string ExtraGlyph = "\uE8C7";    // Segoe MDL2 Payment
     private const string SettingsGlyph = "\uE713"; // Segoe MDL2 Settings
 
     private readonly UsageRepository _repository;
+    private readonly UsageProviderPageCache _providerPages;
     private readonly RefreshUsageCommand _refreshCommand;
     private UiUsage[]? _snapshots; // latest emission, projected for rendering; null before the first
 
@@ -63,9 +63,10 @@ internal sealed partial class UsagePage : ListPage, INotifyItemsChanged
     private new void RaiseItemsChanged(int totalItems = -1)
         => _itemsChanged?.Invoke(this, new ItemsChangedEventArgs(totalItems));
 
-    public UsagePage(UsageRepository repository)
+    public UsagePage(UsageRepository repository, UsageProviderPageCache providerPages)
     {
         _repository = repository;
+        _providerPages = providerPages;
         _refreshCommand = new RefreshUsageCommand(repository);
         Id = "com.costafotiadis.agentspanel.usage";
         Title = Resources.Page_Usage_Title;
@@ -80,56 +81,34 @@ internal sealed partial class UsagePage : ListPage, INotifyItemsChanged
             return []; // before the first emission — the spinner covers this
 
         var settings = UsageSettingsManager.Instance;
-        var now = DateTimeOffset.UtcNow;
         var items = new List<IListItem>();
 
         foreach (var usage in snapshots)
         {
-            var stale = usage.StaleText();
+            // Enter navigates into the provider's own page (same cached instance the dock links to).
+            var page = _providerPages.GetPage(usage.Snapshot);
 
-            foreach (var window in usage.Windows)
+            // Worst-window percent pill first (the number you'd act on), then the status pill when
+            // the snapshot is degraded — both may be present with keep-last-good stale numbers.
+            var tags = new List<Tag>();
+            if (usage.WorstVisibleWindow(settings) is { } worst)
+                tags.Add(new Tag(worst.FormatPercent()) { Foreground = worst.SeverityColor() });
+            if (UsageStatusHint.StatusTag(usage.Snapshot.Status) is { } statusTag)
+                tags.Add(statusTag);
+
+            // Stale marker wins over the summary; a provider with no visible windows explains itself
+            // via its status subtitle ("sign in" / "expired") or the empty-account text.
+            var subtitle = usage.StaleText()
+                ?? usage.SummaryText(settings)
+                ?? UsageStatusHint.StatusSubtitle(usage.Snapshot.Status)
+                ?? Resources.Usage_Empty_Title;
+
+            items.Add(new ListItem(page)
             {
-                if (window.Window.Kind == UsageWindowKind.ModelWeek && !settings.ShowModelWindows)
-                    continue;
-                if (window.Window.Kind == UsageWindowKind.ExtraUsage && !settings.ShowExtraUsage)
-                    continue;
-
-                // When the numbers are stale (keep-last-good), say so instead of a reset time that
-                // may already be in the past.
-                items.Add(new ListItem(new NoOpCommand { Id = $"{Id}.{usage.Snapshot.ProviderId}.{window.Window.Id}" })
-                {
-                    Title = window.LongLabel,
-                    Subtitle = stale ?? window.FormatReset(now),
-                    Icon = new IconInfo(WindowGlyph(window.Window.Kind)),
-                    Tags = [new Tag(window.FormatPercent()) { Foreground = window.SeverityColor() }],
-                });
-            }
-
-            // Ok-but-empty: the account reported no active limits at all — say so rather than
-            // rendering a blank section.
-            if (usage.Snapshot.Status == UsageStatus.Ok && usage.Windows.Count == 0)
-            {
-                items.Add(new ListItem(new NoOpCommand { Id = $"{Id}.{usage.Snapshot.ProviderId}.empty" })
-                {
-                    Title = Resources.Usage_Empty_Title,
-                    Subtitle = Resources.Usage_Empty_Subtitle,
-                });
-            }
-
-            // The problem row (sign in / expired / rate-limited / error) — the whole story when there
-            // are no windows, a footnote under the stale numbers otherwise.
-            if (UsageStatusHint.StatusRow(usage.Snapshot) is { } status)
-                items.Add(status);
-
-            // Plan metadata (e.g. "Max 20x"), when the provider knows it.
-            if (usage.Snapshot.PlanLabel is { } plan)
-            {
-                items.Add(new ListItem(new NoOpCommand { Id = $"{Id}.{usage.Snapshot.ProviderId}.plan" })
-                {
-                    Title = Strings.Format(Resources.Plan_Title, plan),
-                    Icon = new IconInfo("\uE77B"), // Segoe MDL2 Contact
-                });
-            }
+                Title = usage.Snapshot.ProviderDisplayName,
+                Subtitle = subtitle,
+                Tags = [.. tags],
+            });
         }
 
         if (UsageStatusHint.DemoRow() is { } demo)
@@ -144,13 +123,6 @@ internal sealed partial class UsagePage : ListPage, INotifyItemsChanged
 
         return [.. items];
     }
-
-    private static string WindowGlyph(UsageWindowKind kind) => kind switch
-    {
-        UsageWindowKind.Session => SessionGlyph,
-        UsageWindowKind.ExtraUsage => ExtraGlyph,
-        _ => WeekGlyph,
-    };
 
     // A new state emission: project for rendering and repaint. Runs on a pool thread (ObserveOn) — no
     // Rx lock is held here, so RaiseItemsChanged's host call is safe.
