@@ -17,8 +17,8 @@ Track your AI coding agents' usage right inside Command Palette.
 1. Claude usage
 2. Codex usage
 3. Copilot usage
-4. AI agent quota
-5. usage limits
+4. opencode usage
+5. AI agent quota
 6. PowerToys
 7. Command Palette extension
 
@@ -30,6 +30,7 @@ dropped them — these carry the "claude usage"-style search queries.
 Track your AI coding agents' usage right inside Command Palette.
 
 • See session and weekly quotas, reset times, and plan info for Claude, Codex, and GitHub Copilot
+• See your recent opencode spend and token counts, read from its data on your device
 • Pin per-agent quick-look buttons like "5h 23%" and "Wk 41%" to the Command Palette dock
 • No accounts, no tracking, no data collection
 
@@ -51,10 +52,14 @@ Requirements
   "no servers of its own", "Requirements" block). That listing passed certification naming
   Finnhub/Twelve Data/Frankfurter freely — precedent that nominative naming is fine.
 - **Name frequency minimized** (2026-08-14 decision): providers are named once in the body (the
-  first bullet); the non-affiliation paragraph names the companies (mirroring Markets' "or any
+  first two bullets — opencode gets its own bullet since 2026-08-15 because its data is local-only,
+  not quota %s, and lumping it into the quota bullet would misdescribe it); the non-affiliation
+  paragraph names the companies (mirroring Markets' "or any
   exchange or data provider" with "or any AI provider"); every other paragraph says
   "provider"/"agent". The short description drops the names too (2026-08-14 final, user call —
   matches the description opener verbatim); provider-name search relies on the full description.
+- **opencode search term** replaced "usage limits" (2026-08-15): still 7 terms / 15 words, and the
+  provider-name queries are what the terms exist for.
 - **No "official"** — anywhere, ever; the whole listing leans on "independent"/"unofficial".
 - **No "real-time"/"live" guarantees** — polling is minutes-coarse and the endpoints are
   undocumented; the delay disclaimer carries the honest version.

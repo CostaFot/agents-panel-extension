@@ -55,10 +55,37 @@ internal sealed record ApiCodexJwtPayloadDto(
 internal sealed record ApiCodexJwtAuthClaimDto(
     [property: JsonPropertyName("chatgpt_plan_type")] string? ChatGptPlanType);
 
+// One line of a Codex rollout file (%CODEX_HOME%\sessions\yyyy\mm\dd\rollout-*.jsonl) — only the
+// sliver CodexTokenLogReader needs. Token events are envelope type "event_msg" with payload type
+// "token_count"; everything else (session_meta, turns, tool calls) parses to non-matching fields and
+// is skipped. ⚠️ info.total_token_usage is CUMULATIVE for the session — readers must diff
+// consecutive events, never sum them (last_token_usage exists on current versions but not all
+// generations, so the diff approach is the portable one).
+internal sealed record ApiCodexRolloutLineDto(
+    [property: JsonPropertyName("timestamp")] string? Timestamp,      // ISO-8601 UTC
+    [property: JsonPropertyName("type")] string? Type,
+    [property: JsonPropertyName("payload")] ApiCodexRolloutPayloadDto? Payload);
+
+internal sealed record ApiCodexRolloutPayloadDto(
+    [property: JsonPropertyName("type")] string? Type,
+    [property: JsonPropertyName("info")] ApiCodexTokenCountInfoDto? Info);
+
+internal sealed record ApiCodexTokenCountInfoDto(
+    [property: JsonPropertyName("total_token_usage")] ApiCodexTokenUsageDto? TotalTokenUsage);
+
+// Mirrors codex-rs's TokenUsage: input_tokens INCLUDES cached_input_tokens (OpenAI's prompt/cached
+// subset convention), output_tokens includes reasoning.
+internal sealed record ApiCodexTokenUsageDto(
+    [property: JsonPropertyName("input_tokens")] long? InputTokens,
+    [property: JsonPropertyName("cached_input_tokens")] long? CachedInputTokens,
+    [property: JsonPropertyName("cache_write_input_tokens")] long? CacheWriteInputTokens,
+    [property: JsonPropertyName("output_tokens")] long? OutputTokens);
+
 // ⚠️ ALL [JsonSerializable] attributes for this context MUST stay on this ONE partial declaration.
 // Splitting them across multiple partials silently breaks the source generator for the whole build
 // (every context type comes back null at runtime) — MarketExtension hit exactly this.
 [JsonSerializable(typeof(ApiCodexUsageDto))]
 [JsonSerializable(typeof(ApiCodexAuthFileDto))]
 [JsonSerializable(typeof(ApiCodexJwtPayloadDto))]
+[JsonSerializable(typeof(ApiCodexRolloutLineDto))]
 internal sealed partial class CodexJsonContext : JsonSerializerContext;

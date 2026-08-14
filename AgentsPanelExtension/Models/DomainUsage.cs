@@ -27,7 +27,9 @@ internal sealed record DomainUsageWindow(
     DateTimeOffset? ResetsAt,      // null when the window has no reset (ExtraUsage)
     string? Qualifier = null,      // e.g. "Opus" for a per-model weekly window
     decimal? Used = null,          // ExtraUsage: used_credits
-    decimal? Limit = null);        // ExtraUsage: monthly_limit
+    decimal? Limit = null,         // ExtraUsage: monthly_limit
+    string? Unit = null);          // ExtraUsage: "USD" when Used is verified dollars (opencode
+                                   // spend); null = unverified units (Copilot credits) → bare number
 
 // Why a snapshot has no usable windows — or, after a keep-last-good merge, the degradation flag
 // riding on an old-but-good one.
@@ -40,6 +42,21 @@ internal enum UsageStatus
     Error,           // network/HTTP/parse failure
 }
 
+// Tokens consumed in the last 24 hours (rolling), summed from the provider CLI's own session logs on
+// THIS machine — a different beast from the quota windows: machine-local (other devices/web don't
+// appear) and NOT convertible to quota % (limits are opaque weighted units server-side). Null on the
+// snapshot when the provider has no local logs (Copilot) or the read failed. NO formatting here.
+internal sealed record DomainTokenStats(
+    long InputTokens,              // non-cache input
+    long OutputTokens,
+    long CacheReadTokens,          // cache_read_input_tokens
+    long CacheWriteTokens)         // cache_creation_input_tokens
+{
+    // All four counters summed — the ecosystem's "big number" (it deliberately includes cache
+    // replay volume; that's what makes it land at a glance).
+    public long TotalTokens => InputTokens + OutputTokens + CacheReadTokens + CacheWriteTokens;
+}
+
 // One provider's usage state. Providers return this and NEVER throw for expected failures: a failure is
 // a snapshot with Status != Ok and empty Windows. The repository then merges it with the last good
 // snapshot (keeping Windows/FetchedAt/PlanLabel, taking the new Status) so a bad poll never blanks a
@@ -50,7 +67,8 @@ internal sealed record DomainUsageSnapshot(
     UsageStatus Status,
     IReadOnlyList<DomainUsageWindow> Windows,
     string? PlanLabel,             // e.g. "Max 20x" from subscriptionType + rateLimitTier
-    DateTimeOffset? FetchedAt)     // when Windows were last SUCCESSFULLY fetched; null = never
+    DateTimeOffset? FetchedAt,     // when Windows were last SUCCESSFULLY fetched; null = never
+    DomainTokenStats? TokenStats = null) // today's local-log token counts; independent of Status
 {
     // True when this snapshot is showing old numbers under a non-Ok status (keep-last-good survivor).
     public bool IsStale => Status != UsageStatus.Ok && Windows.Count > 0;

@@ -1,14 +1,15 @@
 # Certification test notes (Partner Center submission)
 
 Paste (or adapt) the block below into the "Notes for certification" field. A Store reviewer has no
-Claude/Codex/Copilot credentials, so the app will show three "Not signed in" rows — these notes explain
-why that is the expected, fully functional state, and give the reviewer a way to exercise live data.
+Claude/Codex/Copilot/opencode credentials, so the app will show four "Not signed in" rows — these notes
+explain why that is the expected, fully functional state, and give the reviewer a way to exercise live
+data.
 
 ---
 
 Agents Panel is a PowerToys Command Palette extension — it works only inside Command Palette and
 shows usage data for AI subscriptions already signed in on the machine (Claude, Codex, GitHub
-Copilot). No accounts, servers, or telemetry of its own.
+Copilot, opencode). No accounts, servers, or telemetry of its own.
 
 **IMPORTANT: on a machine with no AI sign-ins, every row shows "Not signed in". That is the
 correct, fully functional state — the app never shows fake data. Please do not fail it for this;
@@ -18,7 +19,7 @@ To test:
 
 1. Install Microsoft PowerToys (free) and enable Command Palette. (Launching "Agents Panel" from
    the Start menu only shows a pointer to Command Palette — by design.)
-2. Press **Win+Alt+Space**, type **Agents Panel**, press Enter → three provider rows, each "Not
+2. Press **Win+Alt+Space**, type **Agents Panel**, press Enter → four provider rows, each "Not
    signed in" (expected). Enter on a row opens its detail page with a Refresh command.
 3. Optional, to see live data at no cost: on a GitHub account with Copilot enabled (free tier is
    enough), create a fine-grained token at https://github.com/settings/personal-access-tokens

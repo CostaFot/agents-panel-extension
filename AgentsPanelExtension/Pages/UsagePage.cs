@@ -94,7 +94,7 @@ internal sealed partial class UsagePage : ListPage, INotifyItemsChanged
             // the snapshot is degraded — both may be present with keep-last-good stale numbers.
             var tags = new List<Tag>();
             if (usage.WorstVisibleWindow(settings) is { } worst)
-                tags.Add(new Tag(worst.FormatPercent()) { Foreground = worst.SeverityColor() });
+                tags.Add(new Tag(worst.TagText()) { Foreground = worst.SeverityColor() });
             if (UsageStatusHint.StatusTag(usage.Snapshot.Status) is { } statusTag)
                 tags.Add(statusTag);
 

@@ -27,7 +27,8 @@ internal sealed record UiUsageWindow(DomainUsageWindow Window)
         // "Code") the same way ModelWeek's does; unqualified stays plain "Mo".
         UsageWindowKind.Month => Window.Qualifier ?? Resources.Window_Month_Short,
         UsageWindowKind.ModelWeek => Window.Qualifier ?? Resources.Window_Week_Short,
-        UsageWindowKind.ExtraUsage => Resources.Window_Extra_Short,
+        // ExtraUsage honors Qualifier the same way ("24h" for opencode's rolling spend window).
+        UsageWindowKind.ExtraUsage => Window.Qualifier ?? Resources.Window_Extra_Short,
         _ => Window.Id,
     };
 
@@ -40,7 +41,9 @@ internal sealed record UiUsageWindow(DomainUsageWindow Window)
             ? Strings.Format(Resources.Window_MonthQualified_Long, qualifier)
             : Resources.Window_Month_Long,
         UsageWindowKind.ModelWeek => Strings.Format(Resources.Window_ModelWeek_Long, Window.Qualifier ?? "?"),
-        UsageWindowKind.ExtraUsage => Resources.Window_Extra_Long,
+        UsageWindowKind.ExtraUsage => Window.Qualifier is { } extraQualifier
+            ? Strings.Format(Resources.Window_ExtraQualified_Long, extraQualifier)
+            : Resources.Window_Extra_Long,
         _ => Window.Id,
     };
 
@@ -48,9 +51,17 @@ internal sealed record UiUsageWindow(DomainUsageWindow Window)
     public string FormatPercent() =>
         string.Create(CultureInfo.InvariantCulture, $"{(int)Math.Round(Window.Utilization)}%");
 
-    // The dock button title, e.g. "5h 23%" / "Wk 41%" / "Opus 67%" — must stay within the host's
-    // ~15-char button budget (longer titles get ellipsized, not scrolled).
-    public string DockTitle() => $"{ShortLabel} {FormatPercent()}";
+    // The pill/tag figure: percent for quota windows, but a dollar-denominated ExtraUsage window
+    // shows its amount ("$0.12") — its utilization is a placeholder 0, and a green "0%" would read
+    // as a healthy quota. (Copilot's unit-unknown credits row keeps the percent form.)
+    public string TagText() =>
+        Window is { Kind: UsageWindowKind.ExtraUsage, Used: { } used, Unit: "USD" }
+            ? FormatDollars(used)
+            : FormatPercent();
+
+    // The dock button title, e.g. "5h 23%" / "Wk 41%" / "Opus 67%" / "24h $0.12" — must stay within
+    // the host's ~15-char button budget (longer titles get ellipsized, not scrolled).
+    public string DockTitle() => $"{ShortLabel} {TagText()}";
 
     // The secondary line: when the window resets — "resets 17:30" today, "resets Thu 09:00" further
     // out — or, for the credits window, "$6.00 of $50.00 used". Empty when there's nothing to say.
@@ -58,12 +69,15 @@ internal sealed record UiUsageWindow(DomainUsageWindow Window)
     {
         if (Window.Kind == UsageWindowKind.ExtraUsage)
         {
-            // Both bounds → "$x of $y" (Claude credits, verified USD). Used only → a bare "n used"
-            // (Copilot AI credits: the cap isn't reported and the unit is unverified, so no $).
+            // Both bounds → "$x of $y" (Claude credits, verified USD). Used only: "$x used" when the
+            // unit is verified USD (opencode spend), else a bare "n used" (Copilot AI credits: the
+            // cap isn't reported and the unit is unverified, so no $).
             return Window switch
             {
                 { Used: { } used, Limit: { } limit } =>
                     Strings.Format(Resources.Extra_UsedOfLimit, FormatDollars(used), FormatDollars(limit)),
+                { Used: { } used, Unit: "USD" } =>
+                    Strings.Format(Resources.Extra_Used, FormatDollars(used)),
                 { Used: { } used } =>
                     Strings.Format(Resources.Extra_Used, used.ToString("0.##", CultureInfo.InvariantCulture)),
                 _ => string.Empty,
@@ -119,6 +133,51 @@ internal sealed record UiUsage(DomainUsageSnapshot Snapshot)
     // The highest-utilization visible window — drives the hub row's severity-colored percent pill.
     public UiUsageWindow? WorstVisibleWindow(UsageSettingsManager settings) =>
         VisibleWindows(settings).OrderByDescending(w => w.Window.Utilization).FirstOrDefault();
+
+    // "56k in · 29k out · 2.2M cache read" for the provider page's "Tokens (24h)" row — the last 24
+    // hours' counts from the provider's local session logs. "in" = fresh input + cache WRITES (tokens entering the
+    // model as new context) — the raw input_tokens alone is a misleading crumb once prompt caching is
+    // doing its job (observed: 56 for a full day). Cache READS stay separate: they're replay volume,
+    // interesting but a different beast. Null when the provider has no local logs, the read failed, or
+    // the setting is off.
+    public string? TokenSummary(UsageSettingsManager settings)
+    {
+        if (!settings.ShowTokenStats || Snapshot.TokenStats is not { } tokens)
+            return null;
+        return Strings.Format(
+            Resources.Tokens_Summary,
+            FormatTokens(tokens.InputTokens + tokens.CacheWriteTokens),
+            FormatTokens(tokens.OutputTokens),
+            FormatTokens(tokens.CacheReadTokens));
+    }
+
+    // "24h 2.3M" for the optional dock token button — TOTAL tokens (all four counters), the
+    // ecosystem-standard glance number: the title budget (~15 chars) fits ONE figure, and any single
+    // component (output alone read as a puny "2.5k" on read-heavy Codex sessions) says nothing at
+    // first sight. The in/out/cache breakdown rides on the button's subtitle (TokenSummary). Null
+    // when token stats are absent or either token toggle is off.
+    public string? TokenDockTitle(UsageSettingsManager settings)
+    {
+        if (!settings.ShowTokenStatsInDock || Snapshot.TokenStats is not { } tokens)
+            return null;
+        return Strings.Format(Resources.Tokens_Dock_Title, FormatTokens(tokens.TotalTokens));
+    }
+
+    // The total on its own ("2.3M") — the page row's tag, mirroring how quota rows lead with their
+    // percent pill. Null under the same conditions as TokenSummary.
+    public string? TokenTotalText(UsageSettingsManager settings) =>
+        settings.ShowTokenStats && Snapshot.TokenStats is { } tokens
+            ? FormatTokens(tokens.TotalTokens)
+            : null;
+
+    // Compact count: 823 → "823", 52_300 → "52k", 1_430_000 → "1.4M". One decimal only while the
+    // leading figure is a single digit. Invariant digits, matching FormatPercent.
+    private static string FormatTokens(long count) => count switch
+    {
+        >= 1_000_000 => ((double)count / 1_000_000).ToString(count < 10_000_000 ? "0.#" : "0", CultureInfo.InvariantCulture) + "M",
+        >= 1_000 => ((double)count / 1_000).ToString(count < 10_000 ? "0.#" : "0", CultureInfo.InvariantCulture) + "k",
+        _ => count.ToString(CultureInfo.InvariantCulture),
+    };
 
     // "stale · as of 17:02" — shown on window rows when the numbers survived a failed refresh
     // (keep-last-good); null when the snapshot is fresh.

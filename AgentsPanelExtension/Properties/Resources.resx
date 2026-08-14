@@ -97,6 +97,9 @@
   <data name="Window_Extra_Long" xml:space="preserve">
     <value>Extra usage</value>
   </data>
+  <data name="Window_ExtraQualified_Long" xml:space="preserve">
+    <value>Extra usage ({0})</value>
+  </data>
   <data name="Window_Session_Short" xml:space="preserve">
     <value>5h</value>
   </data>
@@ -120,6 +123,15 @@
   </data>
   <data name="Stale_AsOf" xml:space="preserve">
     <value>stale — as of {0}</value>
+  </data>
+  <data name="Tokens_Last24h_Title" xml:space="preserve">
+    <value>Tokens (24h)</value>
+  </data>
+  <data name="Tokens_Summary" xml:space="preserve">
+    <value>{0} in · {1} out · {2} cache read</value>
+  </data>
+  <data name="Tokens_Dock_Title" xml:space="preserve">
+    <value>24h {0}</value>
   </data>
   <data name="Plan_Title" xml:space="preserve">
     <value>Plan — {0}</value>
@@ -248,6 +260,18 @@ own API.</value>
   </data>
   <data name="Settings_ShowExtraUsage_Desc" xml:space="preserve">
     <value>Show pay-as-you-go extra usage when the account reports it</value>
+  </data>
+  <data name="Settings_ShowTokenStats_Label" xml:space="preserve">
+    <value>Token counts</value>
+  </data>
+  <data name="Settings_ShowTokenStats_Desc" xml:space="preserve">
+    <value>Show tokens used in the last 24 hours, read from the agent's local session logs on this PC</value>
+  </data>
+  <data name="Settings_ShowTokenStatsInDock_Label" xml:space="preserve">
+    <value>Token count in dock</value>
+  </data>
+  <data name="Settings_ShowTokenStatsInDock_Desc" xml:space="preserve">
+    <value>Also show a 24-hour token button in the provider's Dock band</value>
   </data>
   <data name="Settings_CopilotToken_Label" xml:space="preserve">
     <value>Copilot GitHub token</value>
