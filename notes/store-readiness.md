@@ -20,36 +20,35 @@ manifest description written, minimal capabilities, GitHub remote configured.
 
 ## A. Certification blockers — identity & branding
 
-- [ ] **A1 [user] Real app logo + MSIX asset regen.** All 55 tile/store/splash PNGs in
-  `AgentsPanelExtension/Assets/` are byte-copies of MarketExtension's `$ >_` branding, and
-  `Assets/agentspanel_logo_base_square.png` is its source art renamed. Design a new square source
-  PNG → VS Manifest Designer → Visual Assets with **"Apply recommended padding" OFF**
-  (already-padded art double-insets) → regenerate every scale/targetsize variant. The same square
-  source is the in-app icon (`AgentsPanelCommandsProvider.cs`, `UsagePage.cs`, `LegalPage.cs`,
-  `ProviderIcons.cs` fallback) — two separate icon systems, one source image.
-- [ ] **A2 [user] Real `provider_copilot.png`.** Currently byte-identical to the app logo
-  (1289×1289, 1.17 MB). Needs a purpose-made 64×64 mark like `provider_claude.png` /
-  `provider_codex.png`.
-- [ ] **A3 [agent] Downsize oversized icons.** `agentspanel_logo_base_square.png` (1.17 MB) and
-  `provider_copilot.png` load for 16–32 px rows — ~2.3 MB of package bloat. (After A1/A2 land.)
+- [x] **A1 [user] Real app logo + MSIX asset regen.** (done 2026-08-14 — AI-generated "% >_"
+  dark-squircle art, cleaned to real transparency + 1280px by agent; VS Visual Assets regenerated
+  with padding OFF by user. User may iterate on the art later — the full flow is: replace
+  `listing/agentspanel_logo_1280.png` master → VS regen → agent re-downsizes the Assets copy.
+  The raw AI generation lives at `listing/agents_icon_base.jpg`.)
+- [x] **A2 [agent] Real `provider_copilot.png`.** (done 2026-08-14 — decision: NO real third-party
+  branding for any provider icon, generic tiles only. New 64×64 purple rounded tile with white
+  `{ }` braces glyph, matching the Claude "C" / Codex ">_" tile system; 997 bytes.)
+- [x] **A3 [agent] Downsize oversized icons.** (done 2026-08-14) The 1280px marketing master is
+  parked at `listing/agentspanel_logo_1280.png` (source for any future VS asset regen + README/
+  social art); the in-package `Assets/agentspanel_logo_base_square.png` is a 256px derivative
+  (23 KB, down from 1.17 MB). `provider_copilot.png` was resolved by A2.
 - [ ] **A4 [user] Partner Center name reservation.** Reserve "Agents Panel for Command Palette";
   confirm the assigned `Identity Name` matches `CostaFotiadis.AgentsPanelforCommandPalette` in
   `Package.appxmanifest` + csproj `AppxPackageIdentityName`. Publisher CN already matches.
 
 ## B. Certification blockers — content & legal
 
-- [x] **B5 [agent] Hosted privacy policy + terms.** (docs/ + deploy-pages.yml written 2026-08-14; **[user] still to do: enable GitHub Pages on the repo** — Settings → Pages → Source: GitHub Actions) Partner Center requires a privacy-policy URL.
+- [x] **B5 [agent] Hosted privacy policy + terms.** (docs/ + deploy-pages.yml written 2026-08-14;
+  GitHub Pages enabled + deployed 2026-08-14) Partner Center requires a privacy-policy URL.
   Create `docs/{index,privacy,terms}.html` + `style.css` modeled on MarketExtension's `docs/`,
   adapted to this app: credentials read locally from other apps' stores, requests go directly to
-  Anthropic/OpenAI/GitHub, zero telemetry, Copilot PAT stored plaintext in settings JSON. Copy
-  `deploy-pages.yml`; **[user]** enables GitHub Pages on the repo.
+  Anthropic/OpenAI/GitHub, zero telemetry, Copilot PAT stored plaintext in settings JSON.
 - [x] **B6 [agent] LICENSE.** Add MIT (matching MarketExtension). Without it the public repo is
   all-rights-reserved by default.
-- [x] **B7 [agent] README fixes.** (demo-mode claim removed, build/deploy section fixed 2026-08-14; badges/screenshots deferred to post-approval) Remove the false "Demo mode" claim (line 24 — decided: not
-  implementing it); fix "Deploy the MSIX from Visual Studio" (line 52) vs the Rider reality. Later
-  (after Store approval): release/downloads badges, Store badge
-  (`https://apps.microsoft.com/detail/<store-id>`), winget one-liner, screenshots — copy
-  MarketExtension's README structure.
+- [x] **B7 [agent] README fixes.** (restructured to MarketExtension's README shape 2026-08-14:
+  badges, dock-strip hero, non-affiliation note, Installation, per-feature screenshot sections,
+  FAQ, MIT footer. Store badge + winget one-liner are stubbed in an HTML comment — after Store
+  approval, uncomment and fill in the `<STORE_ID>`.)
 - [x] **B8 [either] Store listing copy → `notes/store-listing.md`.** (drafted 2026-08-14 — user reviews before Partner Center paste) Short + full description,
   **non-affiliation paragraph** (not affiliated with/endorsed by Anthropic, OpenAI, GitHub, or
   Microsoft), disclose that the app requires third-party subscriptions/sign-ins (Store policy),
@@ -112,8 +111,12 @@ manifest description written, minimal capabilities, GitHub remote configured.
   `setup-template.iss` (its `[Registry]` COM block must use this repo's GUID
   `90ff65ac-91f0-4e40-b50c-4dfa6b58c511`).
 - [x] **E20 [agent] `notes/releasing.md`.** Skeleton created alongside this checklist.
-- [ ] **E21 [user] Screenshots → `listing/`.** Hub, provider page, dock bands, settings — doubles
-  as Store listing shots and README art. Needs A1/A2 branding first.
+- [x] **E21 [user] Screenshots → `listing/`.** (done 2026-08-14) Framed-on-gradient shots in
+  `listing/`: `screenshot_panel_hub` (hero), `screenshot_{claude,codex,copilot}_hub` (provider
+  pages, 16:9 Store-ready), `screenshot_bands` (1:1, band management), `screenshot_dock` (3:1
+  strip). `base_screenshot_*` are the raw captures. Note for F22: Store uploads may need the 1:1 /
+  3:1 shots downscaled or padded (the 7200px dock strip exceeds the 3840×2160 ceiling); hub shots
+  upload as-is.
 
 ## F. Store submission & post-Store
 
