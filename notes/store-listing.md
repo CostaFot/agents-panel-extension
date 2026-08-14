@@ -1,47 +1,77 @@
 # Microsoft Store listing copy
 
-Compliance-reviewed copy for the Partner Center submission. Deliberately avoids: no
-"official" anywhere, no "real-time"/"live" guarantees (the endpoints are undocumented and can lag
-or vanish), no implied affiliation with Anthropic/OpenAI/GitHub/Microsoft, nominative trademark
-use only — extra care since all three data endpoints are ToS-gray; required disclosures included
-(third-party subscriptions needed, unofficial data source).
+Compliance-reviewed copy for the Partner Center submission. Structure copied exactly from
+MarketExtension's shipped listing (one-liner → bullets → key-requirement paragraph → open-source +
+source link → non-affiliation → disclaimer → Requirements), which went through Store review easily
+while naming its providers freely. Deliberately avoids: no "official" anywhere, no
+"real-time"/"live" guarantees (the endpoints are undocumented and can lag or vanish), no implied
+affiliation, nominative trademark use only — extra care since all three data endpoints are
+ToS-gray; required disclosures included (third-party subscriptions needed, unofficial data source).
 
 ## Short description (search-results summary)
 
-See your Claude, Codex, and GitHub Copilot usage limits inside PowerToys Command Palette — session and weekly quotas, reset times, and pinnable dock buttons.
+Track your AI coding agents' usage right inside Command Palette.
+
+## Search terms (Partner Center allows 7 × ≤30 chars, ≤21 words total)
+
+1. Claude usage
+2. Codex usage
+3. Copilot usage
+4. AI agent quota
+5. usage limits
+6. PowerToys
+7. Command Palette extension
+
+Provider names deliberately live here (and in the full description) since the short description
+dropped them — these carry the "claude usage"-style search queries.
 
 ## Description (main listing field)
 
-**Agents Panel for Command Palette**
+Track your AI coding agents' usage right inside Command Palette.
 
-Keep an eye on your AI coding agents' usage quotas right inside Microsoft PowerToys Command Palette — how much of your session and weekly limits you've used, when each window resets, and your plan, without switching apps.
+• See session and weekly quotas, reset times, and plan info for Claude, Codex, and GitHub Copilot
+• Pin per-agent quick-look buttons like "5h 23%" and "Wk 41%" to the Command Palette dock
+• No accounts, no tracking, no data collection
 
-• One hub with a row per agent — Claude, Codex, and GitHub Copilot — each showing a usage summary at a glance
-• Drill into any agent for every quota window, reset times, and plan details
-• Pin per-agent dock bands for quick-look buttons like "5h 23%" and "Wk 41%" that update while pinned
-• Uses the sign-ins your machine already has (Claude Code, the Codex CLI or app, GitHub tooling) — or paste a GitHub fine-grained token for Copilot
-• If a refresh fails, the last known numbers stay visible and are marked stale instead of vanishing
-• No accounts of its own, no telemetry — it runs entirely on your machine and talks only to each provider's own API
+To view usage data you'll need your own subscription and sign-in with each provider you want to track, used under your own agreement with that provider. Your tokens and data stay on your device — the extension has no servers of its own and sends each token only to the provider it belongs to.
 
-This app displays usage for subscriptions you already hold. It requires an active sign-in or subscription with the respective provider — a Claude plan (via Claude Code), a ChatGPT plan (via Codex), or GitHub Copilot — to show live data; without one, an agent's row simply offers sign-in guidance. Your tokens stay on your device and are sent only to the provider that issued them.
+This is an open-source, independent extension. Source code is available at https://github.com/CostaFot/agents-panel-extension.
 
-**Independent project.** Agents Panel is an open-source, independent extension. It is not affiliated with, endorsed by, or sponsored by Anthropic, OpenAI, GitHub, or Microsoft. Claude, ChatGPT, Codex, GitHub Copilot, PowerToys, and all other product names and logos are the property of their respective owners and are used only to identify the services whose usage the app displays.
+It is not affiliated with, endorsed by, or sponsored by Microsoft, Anthropic, OpenAI, GitHub, or any AI provider. Company and product names and logos are the property of their respective owners.
 
-**Disclaimer.** Usage figures come from endpoints the providers do not document for third-party use; they may be delayed, inaccurate, or incomplete, and a provider may change or remove them at any time, at which point the app may stop showing data for that agent. The numbers shown in each provider's own apps are authoritative — do not rely on this app as your only indicator of remaining quota.
+Disclaimer: Usage figures are not guaranteed and can be inaccurate or incomplete. This extension is for informational purposes only.
+
+Requirements
+• PowerToys 0.98.1 or later, with Command Palette enabled
 
 ## Compliance notes
 
+- **Structure copied exactly from MarketExtension's shipped listing** — same sections, same order,
+  same register (terse opener, tight bullets, "used under your own agreement with that provider",
+  "no servers of its own", "Requirements" block). That listing passed certification naming
+  Finnhub/Twelve Data/Frankfurter freely — precedent that nominative naming is fine.
+- **Name frequency minimized** (2026-08-14 decision): providers are named once in the body (the
+  first bullet); the non-affiliation paragraph names the companies (mirroring Markets' "or any
+  exchange or data provider" with "or any AI provider"); every other paragraph says
+  "provider"/"agent". The short description drops the names too (2026-08-14 final, user call —
+  matches the description opener verbatim); provider-name search relies on the full description.
 - **No "official"** — anywhere, ever; the whole listing leans on "independent"/"unofficial".
 - **No "real-time"/"live" guarantees** — polling is minutes-coarse and the endpoints are
-  undocumented; "update while pinned" and the delay disclaimer carry the honest version.
+  undocumented; the delay disclaimer carries the honest version.
 - **Third-party account disclosure** — Store policy requires disclosing that third-party
-  subscriptions/sign-ins are needed; the "requires an active sign-in or subscription" paragraph
-  covers it explicitly for all three providers.
-- **Undocumented-endpoint disclaimer** — explicit, including that data can stop working entirely;
-  this also pre-answers a certification question about what happens without credentials (sign-in
-  guidance rows, see the certification notes in `notes/certification-notes.md`).
-- **Trademarks** — nominative use only ("for Command Palette", "your Claude … usage"), plus the
-  explicit non-affiliation + owners'-rights paragraph naming all four companies.
+  subscriptions/sign-ins are needed; the "your own subscription and sign-in with each provider"
+  paragraph covers it (providers enumerated in the first bullet).
+- **Disclaimer kept short by user decision (2026-08-14 final)** — "not guaranteed and can be
+  inaccurate or incomplete … informational purposes only". The undocumented-endpoint/can-vanish
+  detail was deliberately dropped from the listing; it still lives in
+  `notes/certification-notes.md` (for the reviewer) and the docs pages.
+- **No signed-out claims** — the final copy says nothing about what a signed-out row shows,
+  which stays consistent with C10 (rows are neutral, no sign-in guidance; an earlier draft's
+  "offers sign-in guidance" line was wrong).
+- **No demo-mode bullet** — Markets had one; this app deliberately has no demo mode (2026-08-14
+  decision), certification notes carry that weight instead.
+- **Requirements line** — PowerToys 0.98.1+ (Dock + `GetDockBands` shipped in PowerToys 0.98 /
+  CmdPal 0.9; same line MarketExtension shipped).
 - **Never claim token safety beyond what's true** — the Copilot PAT pasted in settings is stored
   in plain text locally; the listing says only "stay on your device", which is accurate, and the
   privacy policy discloses the plaintext detail.

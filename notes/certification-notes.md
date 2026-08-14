@@ -6,34 +6,29 @@ why that is the expected, fully functional state, and give the reviewer a way to
 
 ---
 
-**What this app is.** Agents Panel is a PowerToys Command Palette extension (it requires Microsoft
-PowerToys with Command Palette to be installed and running). It displays the usage quotas of AI
-coding agents the user already subscribes to — Claude, Codex (ChatGPT), and GitHub Copilot — by
-reading the sign-in credentials those providers' own apps store locally on the machine and querying
-each provider's usage API directly. The app has no accounts, servers, or telemetry of its own.
+Agents Panel is a PowerToys Command Palette extension — it works only inside Command Palette and
+shows usage data for AI subscriptions already signed in on the machine (Claude, Codex, GitHub
+Copilot). No accounts, servers, or telemetry of its own.
 
-**How to launch it.** Install Microsoft PowerToys, enable Command Palette, install this package,
-then open Command Palette (default Win+Alt+Space) and run "Agents Panel". Each provider also
-exposes a dock band that can be pinned via Command Palette's dock.
+**IMPORTANT: on a machine with no AI sign-ins, every row shows "Not signed in". That is the
+correct, fully functional state — the app never shows fake data. Please do not fail it for this;
+the listing discloses the subscription requirement.**
 
-**What you will see without any AI-agent credentials.** One row per provider (Claude, Codex,
-GitHub Copilot), each reading "Not signed in to <provider> — No sign-in found on this PC". This is
-the designed behavior for a machine that has no AI-agent subscriptions — the app
-deliberately does not ship fake data. All navigation, settings, refresh, and dock-pinning behavior
-works in this state.
+To test:
 
-**How to see live data (optional, Copilot is the easiest).** In the app's settings (Command
-Palette → Agents Panel → Settings), paste a GitHub fine-grained personal access token that has the
-account permission "Copilot Requests: Read" for any GitHub account with Copilot enabled (the free
-Copilot tier is sufficient). The Copilot row will then display live monthly quota data. Claude and
-Codex data appear only when Claude Code or the Codex CLI/app is signed in on the machine.
+1. Install Microsoft PowerToys (free) and enable Command Palette. (Launching "Agents Panel" from
+   the Start menu only shows a pointer to Command Palette — by design.)
+2. Press **Win+Alt+Space**, type **Agents Panel**, press Enter → three provider rows, each "Not
+   signed in" (expected). Enter on a row opens its detail page with a Refresh command.
+3. Optional, to see live data at no cost: on a GitHub account with Copilot enabled (free tier is
+   enough), create a fine-grained token at https://github.com/settings/personal-access-tokens
+   with permission "Copilot Requests: Read", and paste it in Command Palette Settings →
+   Extensions → Agents Panel. The Copilot row then shows live quota numbers.
 
-**Why runFullTrust.** The app is a Command Palette extension: it runs as an out-of-process COM
-server that the PowerToys Command Palette host activates, which requires the full-trust
-application capability (standard for all Command Palette extensions).
+runFullTrust: the app runs as an out-of-process COM server activated by the Command Palette host —
+standard for all Command Palette extensions.
 
-**Privacy.** Tokens are read at request time only and sent only to the provider that issued them
-(api.anthropic.com, chatgpt.com, api.github.com). No telemetry. Privacy policy:
+Privacy: tokens are sent only to the provider that issued them; no telemetry.
 https://costafot.github.io/agents-panel-extension/privacy.html
 
 ---

@@ -5,7 +5,7 @@
 
 <img src="listing/screenshot_dock.png" width="600"/>
 
-A Windows 11 [Command Palette](https://learn.microsoft.com/en-us/windows/powertoys/command-palette/overview) (PowerToys) extension that shows your AI agents' **usage and limits** at a glance — right on the Command Palette dock.
+A Windows 11 [Command Palette](https://learn.microsoft.com/en-us/windows/powertoys/command-palette/overview) (PowerToys) extension that shows your AI agents' **usage** at a glance — right on the Command Palette dock.
 
 > Not affiliated with, endorsed by, or sponsored by Anthropic, OpenAI, GitHub, or Microsoft. All product names are used only to identify the services this extension reads usage data for.
 
