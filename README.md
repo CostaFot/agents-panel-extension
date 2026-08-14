@@ -5,12 +5,12 @@
 
 <img src="listing/screenshot_dock.png" width="600"/>
 
-A Windows 11 [Command Palette](https://learn.microsoft.com/en-us/windows/powertoys/command-palette/overview) (PowerToys) extension that shows your AI agents' **usage** on the Command Palette dock.
+A Windows 11 [Command Palette](https://learn.microsoft.com/en-us/windows/powertoys/command-palette/overview) extension that shows your AI agents' usage on the Command Palette dock.
 
 ## Requirements
 [PowerToys](https://github.com/microsoft/PowerToys) with Command Palette enabled
 
-... and any/either of:
+... and any/all of:
 - Claude Code signed in with a Pro/Max account
 - Codex CLI or desktop app signed in
 - A local GitHub Copilot sign-in, or a fine-grained PAT with *Copilot Requests: Read*
