@@ -112,8 +112,12 @@ manifest description written, minimal capabilities, GitHub remote configured.
   `setup-template.iss` (its `[Registry]` COM block must use this repo's GUID
   `90ff65ac-91f0-4e40-b50c-4dfa6b58c511`).
 - [x] **E20 [agent] `notes/releasing.md`.** Skeleton created alongside this checklist.
-- [ ] **E21 [user] Screenshots → `listing/`.** Hub, provider page, dock bands, settings — doubles
-  as Store listing shots and README art. Needs A1/A2 branding first.
+- [x] **E21 [user] Screenshots → `listing/`.** (done 2026-08-14) Framed-on-gradient shots in
+  `listing/`: `screenshot_panel_hub` (hero), `screenshot_{claude,codex,copilot}_hub` (provider
+  pages, 16:9 Store-ready), `screenshot_bands` (1:1, band management), `screenshot_dock` (3:1
+  strip). `base_screenshot_*` are the raw captures. Note for F22: Store uploads may need the 1:1 /
+  3:1 shots downscaled or padded (the 7200px dock strip exceeds the 3840×2160 ceiling); hub shots
+  upload as-is.
 
 ## F. Store submission & post-Store
 
