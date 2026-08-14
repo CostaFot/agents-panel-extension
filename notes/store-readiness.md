@@ -92,17 +92,19 @@ manifest description written, minimal capabilities, GitHub remote configured.
   decision (removal reverted). Preview pins (`WindowsSdkPackageVersion 10.0.26100.68-preview`,
   NetAnalyzers) deliberately kept — MarketExtension shipped to the Store on the same pin; revisit
   post-approval. The ARM64-first alphabetical trap remains — `-p:Platform=x64` stays mandatory.
-- [ ] **D16 [agent] Untrack `.idea/`.** Ignored in `.gitignore` but committed earlier, so it's
-  still tracked.
-- [ ] **D17 [user] Merge `scaffold` → `main`.** All work is on `scaffold`; `origin/main` is one
-  empty initial commit — the public repo shows nothing.
+- [x] **D16 [agent] Untrack `.idea/`.** (verified 2026-08-14: stale item — `git ls-files` shows
+  nothing under `.idea/` is tracked; nothing to do.)
+- [x] **D17 [user] Merge `scaffold` → `main`.** (done — "Initial scaffold (#1)" merged to main;
+  `scaffold`'s remote is gone. Current work continues on `working_through_release_checklist`,
+  which will PR to main the same way.)
 
 ## E. Release infrastructure (copy from MarketExtension, rename)
 
-- [ ] **E18 [user] Signing cert + secrets.** Copy `create-signing-cert.ps1` (CN already correct),
-  run as admin, set GitHub secrets `SIGNING_CERT_PFX` (base64) + `SIGNING_CERT_PASSWORD`.
-  `.gitignore` already covers `*.pfx`. Later, for WinGet: `WINGET_TOKEN` (classic PAT,
-  public_repo).
+- [x] **E18 [user] Signing cert + secrets.** (done 2026-08-14: script at
+  `AgentsPanelExtension/create-signing-cert.ps1`, cert "Agents Panel Extension Signing" generated
+  with the manifest CN — expires **2027-08-14**, re-run then — both secrets set on the repo, pfx
+  git-ignored. User to back up signing.pfx + password.) Still later, for WinGet: `WINGET_TOKEN`
+  (classic PAT, public_repo).
 - [x] **E19 [agent] Workflows.** (build-check/release-msix/deploy-pages written 2026-08-14; release-extension.yml + Inno Setup deferred as noted) Copy into `.github/workflows/` and rename env vars
   (`DISPLAY_NAME`/`EXTENSION_NAME`/`FOLDER_NAME`): `build-check.yml` (PR gate),
   `release-msix.yml` (x64+ARM64 → makeappx bundle → signtool → GitHub Release),
@@ -130,13 +132,10 @@ manifest description written, minimal capabilities, GitHub remote configured.
 
 ## G. Recommended, not blocking
 
-- [ ] **G24 [agent] Tests.** Test project over the pure high-risk logic:
-  `CopilotUsageProvider.MapWindows` (3 payload generations), `UsageRepository.Merge`
-  (keep-last-good), `UsageSettingsManager.RefreshMinutes` clamp, reset-time parsing — with
-  captured sample JSON from the three undocumented endpoints as a regression net for when they
-  reshape.
-- [ ] **G25 [agent] Copilot PAT plaintext.** Note it in the setting description + privacy page
-  (CmdPal TextSetting has no masking).
+- [x] **G24 [agent] Tests.** (decided 2026-08-14: **won't do** — user call, no test project.)
+- [x] **G25 [agent] Copilot PAT plaintext.** (decided 2026-08-14: **won't do** the setting-description
+  note — user call. The privacy page (B5) already discloses the plaintext storage, which covers the
+  formal side.)
 - [ ] **G26 [agent] Settings wording.** `showModelWindows`/`showExtraUsage` descriptions are
   Claude-worded but filter every provider — reword.
 - [ ] **G27 [agent] HttpClient timeout.** Verify `HttpRetry`'s 8s bail actually caps wall time;
