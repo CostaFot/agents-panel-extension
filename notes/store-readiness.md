@@ -63,9 +63,10 @@ manifest description written, minimal capabilities, GitHub remote configured.
 
 ## C. First-run / UX gaps
 
-- [ ] **C10 [agent] Actionable NotConfigured rows.** Enter currently does nothing on a "Sign in"
-  row (`UsageStatusHint.cs` NoOpCommand). Minimum: Copilot's row links to the token setting;
-  Claude/Codex rows get concrete guidance (install/sign in via the agent's own app).
+- [x] **C10 [agent] Actionable NotConfigured rows.** (resolved 2026-08-14 — decision: rows stay
+  deliberately non-actionable; no deep-links or third-party sign-in guidance, the app never handles
+  or advises on the agents' own apps. Wording made neutral/factual instead: "Not signed in to {0}" /
+  "No sign-in found on this PC", TokenExpired subtitle likewise de-guided.)
 - [ ] **C11 [agent] Per-provider enable/disable.** The `IAgentUsageProvider.IsAvailable` seam
   exists but is hardcoded `true`. Add settings toggles so a single-agent user isn't stuck with two
   permanent "Sign in" rows.

@@ -131,10 +131,10 @@
     <value>The account reported no active limits</value>
   </data>
   <data name="Status_NotSignedIn_Title" xml:space="preserve">
-    <value>Sign in to {0}</value>
+    <value>Not signed in to {0}</value>
   </data>
   <data name="Status_NotSignedIn_Subtitle" xml:space="preserve">
-    <value>No local sign-in found — log in via the agent's own app</value>
+    <value>No sign-in found on this PC</value>
   </data>
   <data name="Status_NotSignedIn_Tag" xml:space="preserve">
     <value>Not signed in</value>
@@ -143,7 +143,7 @@
     <value>{0} sign-in expired</value>
   </data>
   <data name="Status_TokenExpired_Subtitle" xml:space="preserve">
-    <value>Just use the agent — its own app refreshes the sign-in</value>
+    <value>The saved sign-in has expired</value>
   </data>
   <data name="Status_TokenExpired_Tag" xml:space="preserve">
     <value>Expired</value>

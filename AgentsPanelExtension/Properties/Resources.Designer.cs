@@ -205,7 +205,7 @@ namespace AgentsPanelExtension.Properties {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Sign in to {0}.
+        ///   Looks up a localized string similar to Not signed in to {0}.
         /// </summary>
         public static string Status_NotSignedIn_Title {
             get {
@@ -214,7 +214,7 @@ namespace AgentsPanelExtension.Properties {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to No local sign-in found — log in via the agent's own app.
+        ///   Looks up a localized string similar to No sign-in found on this PC.
         /// </summary>
         public static string Status_NotSignedIn_Subtitle {
             get {
@@ -268,7 +268,7 @@ namespace AgentsPanelExtension.Properties {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Just use the agent — its own app refreshes the sign-in.
+        ///   Looks up a localized string similar to The saved sign-in has expired.
         /// </summary>
         public static string Status_TokenExpired_Subtitle {
             get {

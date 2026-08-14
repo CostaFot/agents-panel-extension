@@ -62,8 +62,10 @@ internal static class UsageStatusHint
     }
 
     // Status rows are informational — there is nothing useful for Enter to do (we can't sign the user
-    // in), so a NoOpCommand with a stable non-empty Id. Subtitle and pill come from the per-status
-    // helpers above so the text/colors stay defined once.
+    // in), so a NoOpCommand with a stable non-empty Id. Decision (2026-08-14): keep it that way — no
+    // deep-links, no third-party sign-in guidance; the row states the fact and the user handles their
+    // own agent apps. Subtitle and pill come from the per-status helpers above so the text/colors stay
+    // defined once.
     private static ListItem Row(DomainUsageSnapshot snapshot, string title, string kind) =>
         new(new NoOpCommand { Id = $"com.costafotiadis.agentspanel.status.{snapshot.ProviderId}.{kind}" })
         {
