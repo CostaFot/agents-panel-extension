@@ -58,6 +58,14 @@ internal sealed class UsageSettingsManager : JsonSettingsManager
         Description = Resources.Settings_ShowTokenStats_Desc,
     };
 
+    // Also show a token-count button in the provider's Dock band. On by default; subordinate to
+    // _showTokenStats — turning token counts off hides the dock button too.
+    private readonly ToggleSetting _showTokenStatsInDock = new("showTokenStatsInDock", true)
+    {
+        Label = Resources.Settings_ShowTokenStatsInDock_Label,
+        Description = Resources.Settings_ShowTokenStatsInDock_Desc,
+    };
+
     // Optional explicit GitHub token for the Copilot provider (e.g. a fine-grained PAT with
     // "Copilot Requests: Read"). Blank by default — CopilotCredentialsReader then falls back to the
     // tokens gh CLI / Copilot CLI / the editor plugins already left on the machine. ⚠️ Persisted in
@@ -92,6 +100,9 @@ internal sealed class UsageSettingsManager : JsonSettingsManager
     // Whether the local-log token counts row renders. Read pull-style each render.
     public bool ShowTokenStats => _showTokenStats.Value;
 
+    // Whether the dock band also gets a token-count button. Requires ShowTokenStats.
+    public bool ShowTokenStatsInDock => _showTokenStats.Value && _showTokenStatsInDock.Value;
+
     // The user's explicit Copilot token, or null when blank/whitespace. Read pull-style each fetch.
     // NEVER log the value.
     public string? CopilotToken =>
@@ -104,6 +115,7 @@ internal sealed class UsageSettingsManager : JsonSettingsManager
         Settings.Add(_showModelWindows);
         Settings.Add(_showExtraUsage);
         Settings.Add(_showTokenStats);
+        Settings.Add(_showTokenStatsInDock);
         Settings.Add(_copilotToken);
         LoadSettings();
         Settings.SettingsChanged += (_, _) => SaveSettings();

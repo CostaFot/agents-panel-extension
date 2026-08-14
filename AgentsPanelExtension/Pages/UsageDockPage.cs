@@ -113,6 +113,19 @@ internal sealed partial class UsageDockPage : ListPage, INotifyItemsChanged
             });
         }
 
+        // Optional token-count button (Settings) — local-log activity, not quota. Deliberately NO
+        // stale "!" marker: the counts come from this machine's transcripts, so they're current even
+        // when the endpoint poll is failing. The subtitle carries the full in/out/cache breakdown.
+        if (usage.TokenDockTitle(settings) is { } tokenTitle)
+        {
+            items.Add(new ListItem(page)
+            {
+                Title = tokenTitle,
+                Subtitle = usage.TokenSummary(settings) ?? string.Empty,
+                Icon = icon,
+            });
+        }
+
         // No windows to show — the button IS the status. Ok-but-empty is a healthy account that
         // reported no active limits; it must NOT borrow the error wording (we reached the API fine).
         if (usage.Windows.Count == 0)

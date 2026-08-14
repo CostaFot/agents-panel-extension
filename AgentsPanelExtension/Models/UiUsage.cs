@@ -137,6 +137,17 @@ internal sealed record UiUsage(DomainUsageSnapshot Snapshot)
             FormatTokens(tokens.CacheReadTokens));
     }
 
+    // "24h 29k" for the optional dock token button — output tokens only: the title budget (~15 chars)
+    // fits ONE figure, and "what did the model write" is the most meaningful single number. The full
+    // in/out/cache breakdown rides on the button's subtitle (TokenSummary). Null when token stats are
+    // absent or either token toggle is off.
+    public string? TokenDockTitle(UsageSettingsManager settings)
+    {
+        if (!settings.ShowTokenStatsInDock || Snapshot.TokenStats is not { } tokens)
+            return null;
+        return Strings.Format(Resources.Tokens_Dock_Title, FormatTokens(tokens.OutputTokens));
+    }
+
     // Compact count: 823 → "823", 52_300 → "52k", 1_430_000 → "1.4M". One decimal only while the
     // leading figure is a single digit. Invariant digits, matching FormatPercent.
     private static string FormatTokens(long count) => count switch

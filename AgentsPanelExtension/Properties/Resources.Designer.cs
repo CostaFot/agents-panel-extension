@@ -230,6 +230,15 @@ namespace AgentsPanelExtension.Properties {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to 24h {0}.
+        /// </summary>
+        public static string Tokens_Dock_Title {
+            get {
+                return ResourceManager.GetString("Tokens_Dock_Title", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Can't reach {0}.
         /// </summary>
         public static string Status_Error_Title {
@@ -523,6 +532,24 @@ namespace AgentsPanelExtension.Properties {
         public static string Settings_ShowTokenStats_Desc {
             get {
                 return ResourceManager.GetString("Settings_ShowTokenStats_Desc", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Token count in dock.
+        /// </summary>
+        public static string Settings_ShowTokenStatsInDock_Label {
+            get {
+                return ResourceManager.GetString("Settings_ShowTokenStatsInDock_Label", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Also show a 24-hour token button in the provider's Dock band.
+        /// </summary>
+        public static string Settings_ShowTokenStatsInDock_Desc {
+            get {
+                return ResourceManager.GetString("Settings_ShowTokenStatsInDock_Desc", resourceCulture);
             }
         }
 
