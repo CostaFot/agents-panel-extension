@@ -131,10 +131,10 @@
     <value>The account reported no active limits</value>
   </data>
   <data name="Status_NotSignedIn_Title" xml:space="preserve">
-    <value>Sign in to {0}</value>
+    <value>Not signed in to {0}</value>
   </data>
   <data name="Status_NotSignedIn_Subtitle" xml:space="preserve">
-    <value>No local sign-in found — log in via the agent's own app</value>
+    <value>No sign-in found on this PC</value>
   </data>
   <data name="Status_NotSignedIn_Tag" xml:space="preserve">
     <value>Not signed in</value>
@@ -143,7 +143,7 @@
     <value>{0} sign-in expired</value>
   </data>
   <data name="Status_TokenExpired_Subtitle" xml:space="preserve">
-    <value>Just use the agent — its own app refreshes the sign-in</value>
+    <value>The saved sign-in has expired</value>
   </data>
   <data name="Status_TokenExpired_Tag" xml:space="preserve">
     <value>Expired</value>
@@ -167,7 +167,7 @@
     <value>Error</value>
   </data>
   <data name="Dock_SignIn_Title" xml:space="preserve">
-    <value>Sign in</value>
+    <value>Not signed in</value>
   </data>
   <data name="Dock_SignIn_Subtitle" xml:space="preserve">
     <value>{0} login not found</value>
@@ -176,7 +176,60 @@
     <value>Token expired</value>
   </data>
   <data name="Dock_Expired_Subtitle" xml:space="preserve">
-    <value>Use {0} to refresh the sign-in</value>
+    <value>The saved {0} sign-in has expired</value>
+  </data>
+  <data name="Dock_RateLimited_Title" xml:space="preserve">
+    <value>Rate-limited</value>
+  </data>
+  <data name="DirectLaunch_Message" xml:space="preserve">
+    <value>{0} is a background extension.
+
+To use it, open PowerToys Command Palette and search for "{1}".</value>
+  </data>
+  <data name="Legal_Markdown" xml:space="preserve">
+    <value># The Legal Bit
+
+This app is an **independent, third-party tool**. It is **not
+affiliated with, endorsed by, or connected to** Anthropic, Claude,
+OpenAI, ChatGPT, GitHub, Copilot, or any AI provider. Provider names
+and logos belong to their respective owners.
+
+## No backend, no tracking
+
+This app has **no server, no analytics, and no telemetry**. It
+collects nothing, stores nothing outside your machine, and shares
+nothing with anyone. The only network requests it makes are the usage
+checks you see on screen, sent **directly to the provider**.
+
+## Your credentials stay yours
+
+The app reads the sign-in credentials that a provider's own app
+(e.g. Claude Code) already keeps on your machine. It never creates,
+modifies, uploads, or proxies them — each token is read locally and
+sent **only to the provider it belongs to**, and nowhere else.
+
+Your account and any agreement governing it are **between you and
+that provider**. This app is just a surface that displays what the
+provider reports, and you are responsible for using your account
+within the provider's terms.
+
+## No guarantees
+
+Usage numbers come from provider endpoints that are **not officially
+documented for third-party use** — they can be delayed, inaccurate,
+or stop working at any time without notice. The app is provided
+**as is, without warranty of any kind**. Don't rely on it as the
+authoritative record of your usage or billing — the provider's own
+app and website are.
+
+## What this app does and doesn't do
+
+**Does:** read your local sign-in, ask the provider for your usage
+numbers, and show them to you.
+
+**Doesn't:** run a server, track you, phone home, refresh or modify
+your credentials, or send anything anywhere except the provider's
+own API.</value>
   </data>
   <data name="Settings_Refresh_Label" xml:space="preserve">
     <value>Refresh interval</value>
@@ -188,13 +241,13 @@
     <value>Per-model weekly limits</value>
   </data>
   <data name="Settings_ShowModelWindows_Desc" xml:space="preserve">
-    <value>Show the per-model weekly limits (Opus, Sonnet) as their own rows</value>
+    <value>Show model-specific limits (e.g. Opus, Sonnet) as their own rows</value>
   </data>
   <data name="Settings_ShowExtraUsage_Label" xml:space="preserve">
     <value>Extra usage</value>
   </data>
   <data name="Settings_ShowExtraUsage_Desc" xml:space="preserve">
-    <value>Show the extra-usage credits balance when enabled on the account</value>
+    <value>Show pay-as-you-go extra usage when the account reports it</value>
   </data>
   <data name="Settings_CopilotToken_Label" xml:space="preserve">
     <value>Copilot GitHub token</value>

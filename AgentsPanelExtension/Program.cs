@@ -1,3 +1,4 @@
+using AgentsPanelExtension.Properties;
 using Microsoft.CommandPalette.Extensions;
 using Shmuelie.WinRTServer;
 using Shmuelie.WinRTServer.CsWinRT;
@@ -43,8 +44,9 @@ public class Program
         {
             _ = MessageBox(
                 IntPtr.Zero,
-                "Agents Panel for Command Palette is a background extension.\n\nTo use it, open PowerToys Command Palette and search for \"Agents Panel\".",
-                "Agents Panel for Command Palette",
+                Strings.Format(Resources.DirectLaunch_Message,
+                    Resources.Extension_DisplayName, Resources.Command_AgentsPanel),
+                Resources.Extension_DisplayName,
                 0x40 /* MB_ICONINFORMATION */);
         }
     }

@@ -30,9 +30,6 @@ internal sealed class CodexUsageProvider : IAgentUsageProvider
     // style is for API-key auth, which this provider doesn't use.
     private const string UsageEndpoint = "https://chatgpt.com/backend-api/wham/usage";
 
-    // Honest self-identification (deliberate decision: no client spoofing). One place to bump.
-    private const string UserAgent = "agents-panel/0.1.0";
-
     // One client for the process. Headers that never change ride on it; the Authorization and
     // account-id headers are per-request because credentials are re-read from disk on every fetch.
     private static readonly HttpClient Http = CreateClient();
@@ -122,7 +119,7 @@ internal sealed class CodexUsageProvider : IAgentUsageProvider
     private static HttpClient CreateClient()
     {
         var client = new HttpClient();
-        client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", UserAgent);
+        client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", AppInfo.UserAgent);
         client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         return client;
     }

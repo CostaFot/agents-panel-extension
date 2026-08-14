@@ -38,66 +38,74 @@ manifest description written, minimal capabilities, GitHub remote configured.
 
 ## B. Certification blockers — content & legal
 
-- [ ] **B5 [agent] Hosted privacy policy + terms.** Partner Center requires a privacy-policy URL.
+- [x] **B5 [agent] Hosted privacy policy + terms.** (docs/ + deploy-pages.yml written 2026-08-14; **[user] still to do: enable GitHub Pages on the repo** — Settings → Pages → Source: GitHub Actions) Partner Center requires a privacy-policy URL.
   Create `docs/{index,privacy,terms}.html` + `style.css` modeled on MarketExtension's `docs/`,
   adapted to this app: credentials read locally from other apps' stores, requests go directly to
   Anthropic/OpenAI/GitHub, zero telemetry, Copilot PAT stored plaintext in settings JSON. Copy
   `deploy-pages.yml`; **[user]** enables GitHub Pages on the repo.
-- [ ] **B6 [agent] LICENSE.** Add MIT (matching MarketExtension). Without it the public repo is
+- [x] **B6 [agent] LICENSE.** Add MIT (matching MarketExtension). Without it the public repo is
   all-rights-reserved by default.
-- [ ] **B7 [agent] README fixes.** Remove the false "Demo mode" claim (line 24 — decided: not
+- [x] **B7 [agent] README fixes.** (demo-mode claim removed, build/deploy section fixed 2026-08-14; badges/screenshots deferred to post-approval) Remove the false "Demo mode" claim (line 24 — decided: not
   implementing it); fix "Deploy the MSIX from Visual Studio" (line 52) vs the Rider reality. Later
   (after Store approval): release/downloads badges, Store badge
   (`https://apps.microsoft.com/detail/<store-id>`), winget one-liner, screenshots — copy
   MarketExtension's README structure.
-- [ ] **B8 [either] Store listing copy → `notes/store-listing.md`.** Short + full description,
+- [x] **B8 [either] Store listing copy → `notes/store-listing.md`.** (drafted 2026-08-14 — user reviews before Partner Center paste) Short + full description,
   **non-affiliation paragraph** (not affiliated with/endorsed by Anthropic, OpenAI, GitHub, or
   Microsoft), disclose that the app requires third-party subscriptions/sign-ins (Store policy),
   disclaimer that data comes from undocumented endpoints and may stop working or be inaccurate.
   Never overclaim: no "official", no "real-time". Trademark use nominative only — extra care since
   all three endpoints are ToS-gray.
-- [ ] **B9 [either] Certification test notes.** A Store reviewer has no Claude/Codex/Copilot
+- [x] **B9 [either] Certification test notes.** (drafted 2026-08-14 → `notes/certification-notes.md`) A Store reviewer has no Claude/Codex/Copilot
   credentials, so they'll see three "Sign in" rows. Write submission notes explaining what the app
   does, why those rows appear, and how to exercise the UI (e.g. the Copilot PAT setting with a
   fine-grained test token, if feasible). C10 makes those rows self-explanatory, which helps here.
 
 ## C. First-run / UX gaps
 
-- [ ] **C10 [agent] Actionable NotConfigured rows.** Enter currently does nothing on a "Sign in"
-  row (`UsageStatusHint.cs` NoOpCommand). Minimum: Copilot's row links to the token setting;
-  Claude/Codex rows get concrete guidance (install/sign in via the agent's own app).
-- [ ] **C11 [agent] Per-provider enable/disable.** The `IAgentUsageProvider.IsAvailable` seam
-  exists but is hardcoded `true`. Add settings toggles so a single-agent user isn't stuck with two
-  permanent "Sign in" rows.
-- [ ] **C12 [agent] Fix misleading empty dock band.** `UsageDockPage.cs` falls through to
-  "No usage data" / "Can't reach Claude" for an Ok-but-empty account — wrong on both lines.
-- [ ] **C13 [agent] Hardcoded strings → resx.** `Program.cs` direct-launch MessageBox + caption;
-  `Pages/LegalPage.cs` inline legal Markdown (~45 lines). Both violate the project's own rule.
+- [x] **C10 [agent] Actionable NotConfigured rows.** (resolved 2026-08-14 — decision: rows stay
+  deliberately non-actionable; no deep-links or third-party sign-in guidance, the app never handles
+  or advises on the agents' own apps. Wording made neutral/factual instead: "Not signed in to {0}" /
+  "No sign-in found on this PC", TokenExpired subtitle likewise de-guided.)
+- [x] **C11 [agent] Per-provider enable/disable.** (decided 2026-08-14: **won't do.** Hub showing
+  all providers — including "Not signed in" rows for unused ones — is acceptable; and the dock
+  already gives full per-provider control via the host's own pin/unpin per band (one band per
+  provider), which was the deliberate design. `IsAvailable` stays a dormant seam.)
+- [x] **C12 [agent] Fix misleading empty dock band.** (fixed 2026-08-14) Zero-window fall-through
+  split per status: Ok-but-empty → "No usage data" / "The account reported no active limits";
+  RateLimited → "Rate-limited" / rate-limit subtitle; Error keeps "Can't reach {0}". Dock wording
+  also made neutral per the C10 decision ("Not signed in"; expired subtitle no longer tells the
+  user to go use the agent — behavior "can change", so no promises).
+- [x] **C13 [agent] Hardcoded strings → resx.** (done 2026-08-14) `DirectLaunch_Message` (format
+  string over `Extension_DisplayName`/`Command_AgentsPanel`; caption reuses `Extension_DisplayName`)
+  + `Legal_Markdown` moved to resx, Designer.cs in lock-step. No wording changes.
 
 ## D. Versioning & build hygiene
 
-- [ ] **D14 [agent] Version/UA consolidation.** Six version sites today: csproj
-  `AppxPackageVersion`, `Package.appxmanifest`, `app.manifest`, and three hand-duplicated
-  `UserAgent` constants (Claude/Codex/Copilot providers — each falsely claims "one place to
-  bump"). Consolidate the UA into one shared constant, then keep `notes/releasing.md`'s bump table
-  as the single documented list.
-- [ ] **D15 [agent] csproj/sln cleanup.** Remove the dead x86 sln configurations (pipeline trap:
-  ARM64 is picked alphabetically without `-p:Platform`). Optional: preview pins
-  (`WindowsSdkPackageVersion 10.0.26100.68-preview`, NetAnalyzers preview — MarketExtension
-  shipped with the same SDK pin); add `<Company>/<Product>/<Copyright>`; fix the wrong
-  `PrepareAssets` comment ("StoreLogo.png already exists" — it doesn't; MRT resolves it).
-- [ ] **D16 [agent] Untrack `.idea/`.** Ignored in `.gitignore` but committed earlier, so it's
-  still tracked.
-- [ ] **D17 [user] Merge `scaffold` → `main`.** All work is on `scaffold`; `origin/main` is one
-  empty initial commit — the public repo shows nothing.
+- [x] **D14 [agent] Version/UA consolidation.** (done 2026-08-14) UA now assembly-derived in
+  `Helpers/AppInfo.cs` (csproj `<Version>` mirrors `<AppxPackageVersion>`); the three per-provider
+  constants deleted. Bump sites down to three manifest files — `notes/releasing.md` table updated
+  and verified (built dll carries 0.1.0.0 → UA "agents-panel/0.1.0", byte-identical to the old
+  literal).
+- [x] **D15 [agent] csproj/sln cleanup.** (done 2026-08-14) `<Company>/<Product>/<Copyright>`
+  added (verified in the built dll); `PrepareAssets` comment fixed. x86 sln configs KEPT by user
+  decision (removal reverted). Preview pins (`WindowsSdkPackageVersion 10.0.26100.68-preview`,
+  NetAnalyzers) deliberately kept — MarketExtension shipped to the Store on the same pin; revisit
+  post-approval. The ARM64-first alphabetical trap remains — `-p:Platform=x64` stays mandatory.
+- [x] **D16 [agent] Untrack `.idea/`.** (verified 2026-08-14: stale item — `git ls-files` shows
+  nothing under `.idea/` is tracked; nothing to do.)
+- [x] **D17 [user] Merge `scaffold` → `main`.** (done — "Initial scaffold (#1)" merged to main;
+  `scaffold`'s remote is gone. Current work continues on `working_through_release_checklist`,
+  which will PR to main the same way.)
 
 ## E. Release infrastructure (copy from MarketExtension, rename)
 
-- [ ] **E18 [user] Signing cert + secrets.** Copy `create-signing-cert.ps1` (CN already correct),
-  run as admin, set GitHub secrets `SIGNING_CERT_PFX` (base64) + `SIGNING_CERT_PASSWORD`.
-  `.gitignore` already covers `*.pfx`. Later, for WinGet: `WINGET_TOKEN` (classic PAT,
-  public_repo).
-- [ ] **E19 [agent] Workflows.** Copy into `.github/workflows/` and rename env vars
+- [x] **E18 [user] Signing cert + secrets.** (done 2026-08-14: script at
+  `AgentsPanelExtension/create-signing-cert.ps1`, cert "Agents Panel Extension Signing" generated
+  with the manifest CN — expires **2027-08-14**, re-run then — both secrets set on the repo, pfx
+  git-ignored. User to back up signing.pfx + password.) Still later, for WinGet: `WINGET_TOKEN`
+  (classic PAT, public_repo).
+- [x] **E19 [agent] Workflows.** (build-check/release-msix/deploy-pages written 2026-08-14; release-extension.yml + Inno Setup deferred as noted) Copy into `.github/workflows/` and rename env vars
   (`DISPLAY_NAME`/`EXTENSION_NAME`/`FOLDER_NAME`): `build-check.yml` (PR gate),
   `release-msix.yml` (x64+ARM64 → makeappx bundle → signtool → GitHub Release),
   `deploy-pages.yml`. Optional later: `release-extension.yml` + `build-exe.ps1` +
@@ -124,19 +132,23 @@ manifest description written, minimal capabilities, GitHub remote configured.
 
 ## G. Recommended, not blocking
 
-- [ ] **G24 [agent] Tests.** Test project over the pure high-risk logic:
-  `CopilotUsageProvider.MapWindows` (3 payload generations), `UsageRepository.Merge`
-  (keep-last-good), `UsageSettingsManager.RefreshMinutes` clamp, reset-time parsing — with
-  captured sample JSON from the three undocumented endpoints as a regression net for when they
-  reshape.
-- [ ] **G25 [agent] Copilot PAT plaintext.** Note it in the setting description + privacy page
-  (CmdPal TextSetting has no masking).
-- [ ] **G26 [agent] Settings wording.** `showModelWindows`/`showExtraUsage` descriptions are
-  Claude-worded but filter every provider — reword.
-- [ ] **G27 [agent] HttpClient timeout.** Verify `HttpRetry`'s 8s bail actually caps wall time;
-  consider an explicit `Timeout` (default is 100s).
-- [ ] **G28 [agent] Delete dead `Assets/LockScreenLogo.scale-200.png`** (unreferenced VS template
-  leftover).
+- [x] **G24 [agent] Tests.** (decided 2026-08-14: **won't do** — user call, no test project.)
+- [x] **G25 [agent] Copilot PAT plaintext.** (decided 2026-08-14: **won't do** the setting-description
+  note — user call. The privacy page (B5) already discloses the plaintext storage, which covers the
+  formal side.)
+- [x] **G26 [agent] Settings wording.** (done 2026-08-14) Descriptions made provider-neutral:
+  "Show model-specific limits (e.g. Opus, Sonnet) as their own rows" / "Show pay-as-you-go extra
+  usage when the account reports it" (the old "credits balance" was wrong for Copilot's "n used"
+  row).
+- [x] **G27 [agent] HttpClient timeout.** (decided 2026-08-14: **won't do.** Verified the 8s
+  `MaxDelay` only caps retry waits, NOT request wall time — the 100s HttpClient default applies per
+  attempt. Accepted: MarketExtension ships the same default with no issues, the UI never blocks,
+  and keep-last-good + stale text absorb a slow fetch. Trivial retrofit if ever reported.)
+- [x] **G28 [agent] Delete dead `Assets/LockScreenLogo.scale-200.png`** (resolved 2026-08-14:
+  **kept**, user decision — matching MarketExtension, which shipped the byte-identical file through
+  Store certification. For the record: it is not actually a valid PNG — its leading `0x89` was
+  text-mode-corrupted to `EF BF BD` somewhere in MarketExtension's early history — but nothing
+  references or parses it, so it rides along inert.)
 
 ---
 

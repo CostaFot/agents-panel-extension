@@ -97,11 +97,45 @@ namespace AgentsPanelExtension.Properties {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Use {0} to refresh the sign-in.
+        ///   Looks up a localized string similar to {0} is a background extension.
+        ///
+        ///To use it, open PowerToys Command Palette and search for &quot;{1}&quot;.
+        /// </summary>
+        public static string DirectLaunch_Message {
+            get {
+                return ResourceManager.GetString("DirectLaunch_Message", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to # The Legal Bit
+        ///
+        ///This app is an **independent, third-party tool**. It is **not
+        ///affiliated with, endorsed by, or connected to** Anthropic, Claude,
+        ///OpenAI, ChatGPT, GitHub, Copilot, or any AI provider. Provider names
+        ///and logos belong to their respective owners. [rest of string was truncated]&quot;;.
+        /// </summary>
+        public static string Legal_Markdown {
+            get {
+                return ResourceManager.GetString("Legal_Markdown", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The saved {0} sign-in has expired.
         /// </summary>
         public static string Dock_Expired_Subtitle {
             get {
                 return ResourceManager.GetString("Dock_Expired_Subtitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Rate-limited.
+        /// </summary>
+        public static string Dock_RateLimited_Title {
+            get {
+                return ResourceManager.GetString("Dock_RateLimited_Title", resourceCulture);
             }
         }
 
@@ -124,7 +158,7 @@ namespace AgentsPanelExtension.Properties {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Sign in.
+        ///   Looks up a localized string similar to Not signed in.
         /// </summary>
         public static string Dock_SignIn_Title {
             get {
@@ -205,7 +239,7 @@ namespace AgentsPanelExtension.Properties {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Sign in to {0}.
+        ///   Looks up a localized string similar to Not signed in to {0}.
         /// </summary>
         public static string Status_NotSignedIn_Title {
             get {
@@ -214,7 +248,7 @@ namespace AgentsPanelExtension.Properties {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to No local sign-in found — log in via the agent's own app.
+        ///   Looks up a localized string similar to No sign-in found on this PC.
         /// </summary>
         public static string Status_NotSignedIn_Subtitle {
             get {
@@ -268,7 +302,7 @@ namespace AgentsPanelExtension.Properties {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Just use the agent — its own app refreshes the sign-in.
+        ///   Looks up a localized string similar to The saved sign-in has expired.
         /// </summary>
         public static string Status_TokenExpired_Subtitle {
             get {
@@ -439,7 +473,7 @@ namespace AgentsPanelExtension.Properties {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Show the extra-usage credits balance when enabled on the account.
+        ///   Looks up a localized string similar to Show pay-as-you-go extra usage when the account reports it.
         /// </summary>
         public static string Settings_ShowExtraUsage_Desc {
             get {
@@ -457,7 +491,7 @@ namespace AgentsPanelExtension.Properties {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Show the per-model weekly limits (Opus, Sonnet) as their own rows.
+        ///   Looks up a localized string similar to Show model-specific limits (e.g. Opus, Sonnet) as their own rows.
         /// </summary>
         public static string Settings_ShowModelWindows_Desc {
             get {

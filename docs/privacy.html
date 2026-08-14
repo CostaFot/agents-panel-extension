@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy — Agents Panel for Command Palette</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site">
+    <span class="name">Agents Panel</span>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms</a>
+    </nav>
+  </header>
+
+  <h1>Privacy Policy</h1>
+  <p class="subtitle">Agents Panel for Command Palette &mdash; Last updated August 2026</p>
+
+  <div class="disclaimer">
+    <strong>In short:</strong> Agents Panel runs entirely on your machine. It has no telemetry, no analytics, and no accounts of its own, and it never sends your data to its author. It reads the sign-in credentials that other apps on your machine already store (Claude Code, the Codex CLI/app, GitHub tooling) and uses them for exactly one thing: asking each provider's own usage endpoint for your quota numbers, directly from your device.
+  </div>
+
+  <h2>Overview</h2>
+  <p>Agents Panel for Command Palette (the "extension") is an open-source PowerToys Command Palette extension that shows the usage quotas of AI coding agents &mdash; Claude, Codex, and GitHub Copilot. This policy explains what the extension reads, what it stores, what leaves your device, and what it deliberately does not do.</p>
+
+  <h2>Credentials the extension reads (but does not own)</h2>
+  <p>To fetch your usage numbers, the extension reads access tokens that <strong>other applications on your machine have already stored</strong> as part of their own sign-in:</p>
+  <ul>
+    <li><strong>Claude:</strong> the Claude Code sign-in token from <code>%USERPROFILE%\.claude\.credentials.json</code>.</li>
+    <li><strong>Codex:</strong> the Codex CLI/app sign-in from <code>auth.json</code> in your Codex home directory.</li>
+    <li><strong>GitHub Copilot:</strong> an existing GitHub token found via environment variables, the Windows Credential Manager (GitHub CLI or Copilot CLI sign-ins), GitHub CLI's <code>hosts.yml</code>, or the editor Copilot apps' local files &mdash; or a fine-grained personal access token you paste into the extension's settings yourself.</li>
+  </ul>
+  <p>Tokens are read <strong>at request time only</strong>. The extension never copies them elsewhere, never logs them, never refreshes or modifies them, and never transmits them to anyone except the matching provider's own API (see below). One exception on storage: if you paste a GitHub personal access token into the extension's settings, that token is saved <strong>in plain text</strong> in the extension's local settings file (<code>agentspanel.settings.json</code> under Command Palette's settings folder) &mdash; use a fine-grained token limited to <em>Copilot Requests: Read</em>, and remove it from settings to delete it.</p>
+
+  <h2>Data stored on your device</h2>
+  <p>The extension keeps a small local settings file (refresh interval, display options, and the optional GitHub token described above). It stays on your machine and is never transmitted to the author. You can clear it by removing the settings file or uninstalling the extension.</p>
+
+  <h2>Data that leaves your device</h2>
+  <p>To show your quotas, the extension makes periodic requests over the internet, each carrying the relevant token, <strong>straight from your machine to the provider that issued that token</strong>:</p>
+  <ul>
+    <li><strong>Anthropic</strong> (<code>api.anthropic.com</code>) &mdash; your Claude usage and limits.</li>
+    <li><strong>OpenAI</strong> (<code>chatgpt.com</code>) &mdash; your Codex/ChatGPT usage and limits.</li>
+    <li><strong>GitHub</strong> (<code>api.github.com</code>) &mdash; your Copilot quotas and plan.</li>
+  </ul>
+  <p>These requests do not pass through any server operated by the author, and the author never sees your tokens, your account details, or your usage numbers. Each provider handles the requests it receives under its own privacy policy and terms of service; your use of those services remains subject to their terms.</p>
+
+  <h2>What the extension does not do</h2>
+  <p>The extension contains <strong>no telemetry channel of any kind</strong>. It does not:</p>
+  <ul>
+    <li>Collect analytics or usage statistics</li>
+    <li>Send crash reports or diagnostics</li>
+    <li>Require or create an account</li>
+    <li>Store, log, refresh, or forward your tokens (beyond the optional pasted GitHub token saved in local settings, described above)</li>
+    <li>Share, sell, or transmit your data to the author or any party other than the three providers described above</li>
+  </ul>
+  <p>Release builds emit nothing off your machine beyond the direct provider requests above.</p>
+
+  <h2>Children's privacy</h2>
+  <p>The extension is a general-purpose developer tool and is not directed at children. It does not knowingly collect any information from children.</p>
+
+  <h2>Changes to this policy</h2>
+  <p>This policy may be updated from time to time. The "Last updated" date above reflects the latest revision; continued use of the extension after a change constitutes acceptance of the revised policy.</p>
+
+  <h2>Contact</h2>
+  <p>Questions? <a href="https://github.com/CostaFot/agents-panel-extension/issues">Open an issue on GitHub</a>.</p>
+
+  <footer class="site">
+    <p><a href="index.html">&larr; Back to home</a></p>
+  </footer>
+</body>
+</html>

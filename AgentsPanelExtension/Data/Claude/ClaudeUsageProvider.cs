@@ -30,9 +30,6 @@ internal sealed class ClaudeUsageProvider : IAgentUsageProvider
     // The beta header the endpoint requires alongside a consumer OAuth token.
     private const string AnthropicBeta = "oauth-2025-04-20";
 
-    // Honest self-identification (deliberate decision: no client spoofing). One place to bump.
-    private const string UserAgent = "agents-panel/0.1.0";
-
     // One client for the process. Headers that never change ride on it; the Authorization header is
     // per-request because the token is re-read from disk on every fetch.
     private static readonly HttpClient Http = CreateClient();
@@ -117,7 +114,7 @@ internal sealed class ClaudeUsageProvider : IAgentUsageProvider
     private static HttpClient CreateClient()
     {
         var client = new HttpClient();
-        client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", UserAgent);
+        client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", AppInfo.UserAgent);
         client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         return client;
     }
