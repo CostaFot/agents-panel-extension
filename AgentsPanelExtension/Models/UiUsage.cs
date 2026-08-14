@@ -137,16 +137,24 @@ internal sealed record UiUsage(DomainUsageSnapshot Snapshot)
             FormatTokens(tokens.CacheReadTokens));
     }
 
-    // "24h 29k" for the optional dock token button — output tokens only: the title budget (~15 chars)
-    // fits ONE figure, and "what did the model write" is the most meaningful single number. The full
-    // in/out/cache breakdown rides on the button's subtitle (TokenSummary). Null when token stats are
-    // absent or either token toggle is off.
+    // "24h 2.3M" for the optional dock token button — TOTAL tokens (all four counters), the
+    // ecosystem-standard glance number: the title budget (~15 chars) fits ONE figure, and any single
+    // component (output alone read as a puny "2.5k" on read-heavy Codex sessions) says nothing at
+    // first sight. The in/out/cache breakdown rides on the button's subtitle (TokenSummary). Null
+    // when token stats are absent or either token toggle is off.
     public string? TokenDockTitle(UsageSettingsManager settings)
     {
         if (!settings.ShowTokenStatsInDock || Snapshot.TokenStats is not { } tokens)
             return null;
-        return Strings.Format(Resources.Tokens_Dock_Title, FormatTokens(tokens.OutputTokens));
+        return Strings.Format(Resources.Tokens_Dock_Title, FormatTokens(tokens.TotalTokens));
     }
+
+    // The total on its own ("2.3M") — the page row's tag, mirroring how quota rows lead with their
+    // percent pill. Null under the same conditions as TokenSummary.
+    public string? TokenTotalText(UsageSettingsManager settings) =>
+        settings.ShowTokenStats && Snapshot.TokenStats is { } tokens
+            ? FormatTokens(tokens.TotalTokens)
+            : null;
 
     // Compact count: 823 → "823", 52_300 → "52k", 1_430_000 → "1.4M". One decimal only while the
     // leading figure is a single digit. Invariant digits, matching FormatPercent.

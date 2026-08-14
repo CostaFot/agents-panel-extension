@@ -115,11 +115,14 @@ internal sealed partial class UsageProviderPage : ListPage, INotifyItemsChanged
         // ours to read either way.
         if (usage.TokenSummary(settings) is { } tokenSummary)
         {
+            // The total rides as the tag (the glance number, like the quota rows' percent pill) —
+            // deliberately uncolored: a token count has no severity.
             items.Add(new ListItem(new NoOpCommand { Id = $"{Id}.tokens" })
             {
                 Title = Resources.Tokens_Last24h_Title,
                 Subtitle = tokenSummary,
                 Icon = new IconInfo(TokensGlyph),
+                Tags = usage.TokenTotalText(settings) is { } total ? [new Tag(total)] : [],
             });
         }
 

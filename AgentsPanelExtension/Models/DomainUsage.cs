@@ -48,7 +48,12 @@ internal sealed record DomainTokenStats(
     long InputTokens,              // non-cache input
     long OutputTokens,
     long CacheReadTokens,          // cache_read_input_tokens
-    long CacheWriteTokens);        // cache_creation_input_tokens
+    long CacheWriteTokens)         // cache_creation_input_tokens
+{
+    // All four counters summed — the ecosystem's "big number" (it deliberately includes cache
+    // replay volume; that's what makes it land at a glance).
+    public long TotalTokens => InputTokens + OutputTokens + CacheReadTokens + CacheWriteTokens;
+}
 
 // One provider's usage state. Providers return this and NEVER throw for expected failures: a failure is
 // a snapshot with Status != Ok and empty Windows. The repository then merges it with the last good

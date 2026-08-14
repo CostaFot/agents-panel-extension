@@ -78,8 +78,10 @@ Single observable source of truth; every surface OBSERVES, none fetches:
   events into timestamped deltas (never sums; rebaselines on a counter reset), and Codex's
   `input_tokens` INCLUDES the cached subset, so fresh input = input − cached. Formatting:
   `UiUsage.TokenSummary` ("56k in · 29k out · 2.2M cache read"; in = fresh input + cache WRITES — raw
-  input_tokens is a misleading crumb under prompt caching) + `TokenDockTitle` ("24h 29k", output
-  only — title budget). Two settings: ShowTokenStats (page row) and subordinate ShowTokenStatsInDock
+  input_tokens is a misleading crumb under prompt caching) + `TokenDockTitle`/`TokenTotalText`
+  ("24h 2.3M" / page-row tag — the TOTAL of all four counters, the ecosystem's glance number; any
+  single component reads as noise at first sight). Two settings: ShowTokenStats (page row) and
+  subordinate ShowTokenStatsInDock
   (dock button; requires the first). Copilot has no local logs; stays null.
 
 ## The Claude data source (Data/Claude/ — deliberately isolated)
