@@ -20,18 +20,18 @@ manifest description written, minimal capabilities, GitHub remote configured.
 
 ## A. Certification blockers — identity & branding
 
-- [ ] **A1 [user] Real app logo + MSIX asset regen.** All 55 tile/store/splash PNGs in
-  `AgentsPanelExtension/Assets/` are byte-copies of MarketExtension's `$ >_` branding, and
-  `Assets/agentspanel_logo_base_square.png` is its source art renamed. Design a new square source
-  PNG → VS Manifest Designer → Visual Assets with **"Apply recommended padding" OFF**
-  (already-padded art double-insets) → regenerate every scale/targetsize variant. The same square
-  source is the in-app icon (`AgentsPanelCommandsProvider.cs`, `UsagePage.cs`, `LegalPage.cs`,
-  `ProviderIcons.cs` fallback) — two separate icon systems, one source image.
+- [x] **A1 [user] Real app logo + MSIX asset regen.** (done 2026-08-14 — AI-generated "% >_"
+  dark-squircle art, cleaned to real transparency + 1280px by agent; VS Visual Assets regenerated
+  with padding OFF by user. User may iterate on the art later — the full flow is: replace
+  `listing/agentspanel_logo_1280.png` master → VS regen → agent re-downsizes the Assets copy.
+  The raw AI generation lives at `listing/agents_icon_base.jpg`.)
 - [x] **A2 [agent] Real `provider_copilot.png`.** (done 2026-08-14 — decision: NO real third-party
   branding for any provider icon, generic tiles only. New 64×64 purple rounded tile with white
   `{ }` braces glyph, matching the Claude "C" / Codex ">_" tile system; 997 bytes.)
-- [ ] **A3 [agent] Downsize oversized icons.** `agentspanel_logo_base_square.png` (1.17 MB) loads
-  for 16–32 px rows — package bloat. (After A1 lands; `provider_copilot.png` resolved by A2.)
+- [x] **A3 [agent] Downsize oversized icons.** (done 2026-08-14) The 1280px marketing master is
+  parked at `listing/agentspanel_logo_1280.png` (source for any future VS asset regen + README/
+  social art); the in-package `Assets/agentspanel_logo_base_square.png` is a 256px derivative
+  (23 KB, down from 1.17 MB). `provider_copilot.png` was resolved by A2.
 - [ ] **A4 [user] Partner Center name reservation.** Reserve "Agents Panel for Command Palette";
   confirm the assigned `Identity Name` matches `CostaFotiadis.AgentsPanelforCommandPalette` in
   `Package.appxmanifest` + csproj `AppxPackageIdentityName`. Publisher CN already matches.
