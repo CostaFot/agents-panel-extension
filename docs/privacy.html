@@ -20,11 +20,11 @@
   <p class="subtitle">Agents Panel for Command Palette &mdash; Last updated August 2026</p>
 
   <div class="disclaimer">
-    <strong>In short:</strong> Agents Panel runs entirely on your machine. It has no telemetry, no analytics, and no accounts of its own, and it never sends your data to its author. It reads the sign-in credentials that other apps on your machine already store (Claude Code, the Codex CLI/app, GitHub tooling) and uses them for exactly one thing: asking each provider's own usage endpoint for your quota numbers, directly from your device.
+    <strong>In short:</strong> Agents Panel runs entirely on your machine. It has no telemetry, no analytics, and no accounts of its own, and it never sends your data to its author. It reads the sign-in credentials that other apps on your machine already store (Claude Code, the Codex CLI/app, GitHub tooling) and uses them for exactly one thing: asking each provider's own usage endpoint for your quota numbers, directly from your device. For agents that keep activity records locally (Claude Code, Codex, opencode), it also reads those files to show your recent token counts and spend &mdash; those numbers are computed on your device and never leave it.
   </div>
 
   <h2>Overview</h2>
-  <p>Agents Panel for Command Palette (the "extension") is an open-source PowerToys Command Palette extension that shows the usage quotas of AI coding agents &mdash; Claude, Codex, and GitHub Copilot. This policy explains what the extension reads, what it stores, what leaves your device, and what it deliberately does not do.</p>
+  <p>Agents Panel for Command Palette (the "extension") is an open-source PowerToys Command Palette extension that shows the usage of AI coding agents &mdash; Claude, Codex, GitHub Copilot, and opencode. This policy explains what the extension reads, what it stores, what leaves your device, and what it deliberately does not do.</p>
 
   <h2>Credentials the extension reads (but does not own)</h2>
   <p>To fetch your usage numbers, the extension reads access tokens that <strong>other applications on your machine have already stored</strong> as part of their own sign-in:</p>
@@ -32,8 +32,18 @@
     <li><strong>Claude:</strong> the Claude Code sign-in token from <code>%USERPROFILE%\.claude\.credentials.json</code>.</li>
     <li><strong>Codex:</strong> the Codex CLI/app sign-in from <code>auth.json</code> in your Codex home directory.</li>
     <li><strong>GitHub Copilot:</strong> an existing GitHub token found via environment variables, the Windows Credential Manager (GitHub CLI or Copilot CLI sign-ins), GitHub CLI's <code>hosts.yml</code>, or the editor Copilot apps' local files &mdash; or a fine-grained personal access token you paste into the extension's settings yourself.</li>
+    <li><strong>opencode:</strong> the extension only checks <em>whether</em> opencode's <code>auth.json</code> contains a sign-in entry, to show a signed-in or signed-out row. It never reads, uses, or transmits the key itself &mdash; the opencode row involves no network requests at all (opencode currently exposes no usage endpoint).</li>
   </ul>
   <p>Tokens are read <strong>at request time only</strong>. The extension never copies them elsewhere, never logs them, never refreshes or modifies them, and never transmits them to anyone except the matching provider's own API (see below). One exception on storage: if you paste a GitHub personal access token into the extension's settings, that token is saved <strong>in plain text</strong> in the extension's local settings file (<code>agentspanel.settings.json</code> under Command Palette's settings folder) &mdash; use a fine-grained token limited to <em>Copilot Requests: Read</em>, and remove it from settings to delete it.</p>
+
+  <h2>Local activity records the extension reads</h2>
+  <p>Some agents keep records of your sessions on your machine. To show your recent token counts (and, for opencode, spend), the extension reads:</p>
+  <ul>
+    <li><strong>Claude:</strong> Claude Code's session logs under <code>%USERPROFILE%\.claude\projects</code>.</li>
+    <li><strong>Codex:</strong> the Codex CLI/app's session logs in your Codex home directory.</li>
+    <li><strong>opencode:</strong> opencode's local database in its data directory.</li>
+  </ul>
+  <p>These files can contain the content of your conversations with the agents. The extension extracts <strong>only numeric usage figures</strong> &mdash; token counts, timestamps, and per-message cost &mdash; and sums them into the totals it displays. It never reads your conversation content into the display, never stores copies of these files, and never transmits anything from them; the resulting totals exist only on your device. The token-count rows can be hidden in the extension's settings.</p>
 
   <h2>Data stored on your device</h2>
   <p>The extension keeps a small local settings file (refresh interval, display options, and the optional GitHub token described above). It stays on your machine and is never transmitted to the author. You can clear it by removing the settings file or uninstalling the extension.</p>
@@ -45,6 +55,7 @@
     <li><strong>OpenAI</strong> (<code>chatgpt.com</code>) &mdash; your Codex/ChatGPT usage and limits.</li>
     <li><strong>GitHub</strong> (<code>api.github.com</code>) &mdash; your Copilot quotas and plan.</li>
   </ul>
+  <p>The opencode row is the exception: it is computed entirely from local files, and the extension makes <strong>no network requests to opencode at all</strong>.</p>
   <p>These requests do not pass through any server operated by the author, and the author never sees your tokens, your account details, or your usage numbers. Each provider handles the requests it receives under its own privacy policy and terms of service; your use of those services remains subject to their terms.</p>
 
   <h2>What the extension does not do</h2>
@@ -54,7 +65,7 @@
     <li>Send crash reports or diagnostics</li>
     <li>Require or create an account</li>
     <li>Store, log, refresh, or forward your tokens (beyond the optional pasted GitHub token saved in local settings, described above)</li>
-    <li>Share, sell, or transmit your data to the author or any party other than the three providers described above</li>
+    <li>Share, sell, or transmit your data to the author or any party other than the providers described above</li>
   </ul>
   <p>Release builds emit nothing off your machine beyond the direct provider requests above.</p>
 
