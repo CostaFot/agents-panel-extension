@@ -87,11 +87,11 @@ manifest description written, minimal capabilities, GitHub remote configured.
   constants deleted. Bump sites down to three manifest files — `notes/releasing.md` table updated
   and verified (built dll carries 0.1.0.0 → UA "agents-panel/0.1.0", byte-identical to the old
   literal).
-- [ ] **D15 [agent] csproj/sln cleanup.** Remove the dead x86 sln configurations (pipeline trap:
-  ARM64 is picked alphabetically without `-p:Platform`). Optional: preview pins
-  (`WindowsSdkPackageVersion 10.0.26100.68-preview`, NetAnalyzers preview — MarketExtension
-  shipped with the same SDK pin); add `<Company>/<Product>/<Copyright>`; fix the wrong
-  `PrepareAssets` comment ("StoreLogo.png already exists" — it doesn't; MRT resolves it).
+- [x] **D15 [agent] csproj/sln cleanup.** (done 2026-08-14) `<Company>/<Product>/<Copyright>`
+  added (verified in the built dll); `PrepareAssets` comment fixed. x86 sln configs KEPT by user
+  decision (removal reverted). Preview pins (`WindowsSdkPackageVersion 10.0.26100.68-preview`,
+  NetAnalyzers) deliberately kept — MarketExtension shipped to the Store on the same pin; revisit
+  post-approval. The ARM64-first alphabetical trap remains — `-p:Platform=x64` stays mandatory.
 - [ ] **D16 [agent] Untrack `.idea/`.** Ignored in `.gitignore` but committed earlier, so it's
   still tracked.
 - [ ] **D17 [user] Merge `scaffold` → `main`.** All work is on `scaffold`; `origin/main` is one

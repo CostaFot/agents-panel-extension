@@ -16,6 +16,9 @@
     <!-- Assembly version mirrors the package version so Helpers/AppInfo.cs can derive the HTTP
          User-Agent from the assembly — bump AppxPackageVersion and this follows. -->
     <Version>$(AppxPackageVersion)</Version>
+    <Company>Costa Fotiadis</Company>
+    <Product>Agents Panel for Command Palette</Product>
+    <Copyright>© Costa Fotiadis</Copyright>
     <EnableMsixTooling>true</EnableMsixTooling>
     <Nullable>enable</Nullable>
 
@@ -53,7 +56,7 @@
     <Copy SourceFiles="$(MSBuildProjectDirectory)\Assets\Wide310x150Logo.scale-200.png" DestinationFiles="$(MSBuildProjectDirectory)\Assets\Wide310x150Logo.png" SkipUnchangedFiles="true" />
     <Copy SourceFiles="$(MSBuildProjectDirectory)\Assets\SplashScreen.scale-200.png" DestinationFiles="$(MSBuildProjectDirectory)\Assets\SplashScreen.png" SkipUnchangedFiles="true" />
     <Copy SourceFiles="$(MSBuildProjectDirectory)\Assets\Square150x150Logo.scale-200.png" DestinationFiles="$(MSBuildProjectDirectory)\Assets\LargeTile.png" SkipUnchangedFiles="true" />
-    <!-- StoreLogo.png already exists at the correct path, no copy needed -->
+    <!-- StoreLogo has no base-name file — only scale variants exist; MRT resolves them, so no copy -->
   </Target>
 
   <ItemGroup>
