@@ -67,9 +67,10 @@ manifest description written, minimal capabilities, GitHub remote configured.
   deliberately non-actionable; no deep-links or third-party sign-in guidance, the app never handles
   or advises on the agents' own apps. Wording made neutral/factual instead: "Not signed in to {0}" /
   "No sign-in found on this PC", TokenExpired subtitle likewise de-guided.)
-- [ ] **C11 [agent] Per-provider enable/disable.** The `IAgentUsageProvider.IsAvailable` seam
-  exists but is hardcoded `true`. Add settings toggles so a single-agent user isn't stuck with two
-  permanent "Sign in" rows.
+- [x] **C11 [agent] Per-provider enable/disable.** (decided 2026-08-14: **won't do.** Hub showing
+  all providers — including "Not signed in" rows for unused ones — is acceptable; and the dock
+  already gives full per-provider control via the host's own pin/unpin per band (one band per
+  provider), which was the deliberate design. `IsAvailable` stays a dormant seam.)
 - [ ] **C12 [agent] Fix misleading empty dock band.** `UsageDockPage.cs` falls through to
   "No usage data" / "Can't reach Claude" for an Ok-but-empty account — wrong on both lines.
 - [ ] **C13 [agent] Hardcoded strings → resx.** `Program.cs` direct-launch MessageBox + caption;

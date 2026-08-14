@@ -1,7 +1,7 @@
 # Certification test notes (Partner Center submission)
 
 Paste (or adapt) the block below into the "Notes for certification" field. A Store reviewer has no
-Claude/Codex/Copilot credentials, so the app will show three "Sign in" rows — these notes explain
+Claude/Codex/Copilot credentials, so the app will show three "Not signed in" rows — these notes explain
 why that is the expected, fully functional state, and give the reviewer a way to exercise live data.
 
 ---
@@ -17,8 +17,8 @@ then open Command Palette (default Win+Alt+Space) and run "Agents Panel". Each p
 exposes a dock band that can be pinned via Command Palette's dock.
 
 **What you will see without any AI-agent credentials.** One row per provider (Claude, Codex,
-GitHub Copilot), each in a "Sign in" state with guidance on how that provider's sign-in is
-detected. This is the designed behavior for a machine that has no AI-agent subscriptions — the app
+GitHub Copilot), each reading "Not signed in to <provider> — No sign-in found on this PC". This is
+the designed behavior for a machine that has no AI-agent subscriptions — the app
 deliberately does not ship fake data. All navigation, settings, refresh, and dock-pinning behavior
 works in this state.
 
@@ -42,7 +42,7 @@ Notes to self (not for the reviewer):
 
 - The privacy URL above assumes GitHub Pages is enabled on the repo (B5); verify it resolves
   before submitting.
-- If certification pushes back on the "Sign in" rows anyway, the fallback argument: the Store
+- If certification pushes back on the "Not signed in" rows anyway, the fallback argument: the Store
   policy concern is apps that are non-functional without undisclosed purchases — the listing
   discloses the subscription requirement (B8) and the Copilot path above gives the reviewer a
   zero-cost way to see live data (free Copilot tier).
