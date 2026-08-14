@@ -1,23 +1,22 @@
 # Agents Panel Extension for Command Palette — Agent Guide
 
 Single source of truth for coding agents (Claude Code, Codex, …) working in this repo — CLAUDE.md
-just imports this file.
+just imports this file. Deep provider/token-stats detail lives in `notes/` (see below); read the
+matching note BEFORE changing anything under `Data/<Provider>/`.
 
 A PowerToys **Command Palette** extension showing AI-agent **usage quotas** — session/weekly % used,
 reset times, plan info — with pinnable per-provider **Dock bands** as the main selling point
 ("5h 23%" / "Wk 41%" quick-look buttons; one band per provider, so the user picks which agents to
-pin via the host's own band management). Covers **Claude** (Pro/Max subscription limits), **Codex**
-(ChatGPT subscription limits), **Copilot** (GitHub Copilot quotas), and **opencode** (local-data
-only — no usage API exists yet); the provider architecture is
-open for more later. .NET 9 / C# / MSIX,
-self-contained single-file JIT (trim/AOT deliberately OFF).
+pin via the host's own band management). Covers **Claude**, **Codex**, **Copilot**, and
+**opencode**; the provider architecture is open for more later. .NET 9 / C# / MSIX, self-contained
+single-file JIT (trim/AOT deliberately OFF).
 
 ## Reference project — use it A LOT
 
-Scaffolded from **MarketExtension** (`C:\Users\jarla\code\MarketExtension`, same author). When in doubt,
-look there first — its `CLAUDE.md` + `notes/` document hard-won CmdPal knowledge (`notes/cmdpal-toolkit.md`
-before fighting any toolkit behavior, `notes/releasing.md` for the release flow). Its `reference/` folder
-holds the pristine AdbExtension blank-extension files.
+Scaffolded from **MarketExtension** (`C:\Users\jarla\code\MarketExtension`, same author). When in
+doubt, look there first — its `CLAUDE.md` + `notes/` document hard-won CmdPal knowledge
+(`notes/cmdpal-toolkit.md` before fighting any toolkit behavior, `notes/releasing.md` for the
+release flow). Its `reference/` folder holds the pristine AdbExtension blank-extension files.
 
 ## Architecture in one screen
 
@@ -25,179 +24,71 @@ Single observable source of truth; every surface OBSERVES, none fetches:
 
 - `Data/UsageRepository.cs` — **the coordinator the UI depends on**: owns one
   `MutableStateFlow<IReadOnlyList<DomainUsageSnapshot>>` (the whole cache — no DynamicData/per-key
-  streams), a permanent `PollTicker` subscription whose handler no-ops at 0 observers, single-flight
-  refresh, **keep-last-good merge** (a failed poll never blanks good numbers — old windows survive with
-  the new `UsageStatus` riding on them), and `ObserveUsage()` ending in the **load-bearing
-  `ObserveOn(TaskPoolScheduler.Default)`** hop. `ObserveUsage(providerId)` is a thin projection layered
-  ON TOP of it (inherits refcounting + the hop; emits null while the provider is absent) — keep it that
-  way.
-- `Data/IAgentUsageProvider.cs` — the extension seam: `Id`, `DisplayName`, `IsAvailable` (participates
-  at all — read live), `GetUsageAsync` (**never throws** for expected failures; returns a
-  `UsageStatus`-carrying snapshot). ⚠️ Unlike MarketExtension there is NO
-  fallback routing: an unconfigured provider stays active and reports `NotConfigured` (rendered as a
+  streams), a permanent `PollTicker` subscription whose handler no-ops at 0 observers,
+  single-flight refresh, **keep-last-good merge** (a failed poll never blanks good numbers — old
+  windows survive with the new `UsageStatus` riding on them), and `ObserveUsage()` ending in the
+  **load-bearing `ObserveOn(TaskPoolScheduler.Default)`** hop. `ObserveUsage(providerId)` is a
+  thin projection layered ON TOP of it (inherits refcounting + the hop; emits null while the
+  provider is absent) — keep it that way.
+- `Data/IAgentUsageProvider.cs` — the extension seam: `Id`, `DisplayName`, `IsAvailable`
+  (participates at all — read live), `GetUsageAsync` (**never throws** for expected failures;
+  returns a `UsageStatus`-carrying snapshot). ⚠️ Unlike MarketExtension there is NO fallback
+  routing: an unconfigured provider stays active and reports `NotConfigured` (rendered as a
   "Sign in" row/button) instead of disappearing — agent providers aren't interchangeable.
-- Registration order in `AgentsPanelCommandsProvider`: `ClaudeUsageProvider` → `CodexUsageProvider`
-  → `CopilotUsageProvider` → `OpenCodeUsageProvider`, in the static `Providers` array (used twice:
-  repository ctor + one dock
-  band per entry). Add
-  providers to that array, plus a PNG + case in `Helpers/ProviderIcons.cs` (ProviderId → icon;
-  identifies dock buttons/hub rows — the terse dock titles carry no provider identity) — the hub row
-  and dock band then appear automatically.
+- Registration: `ClaudeUsageProvider` → `CodexUsageProvider` → `CopilotUsageProvider` →
+  `OpenCodeUsageProvider` in `AgentsPanelCommandsProvider`'s static `Providers` array (used twice:
+  repository ctor + one dock band per entry). To add a provider: add it to that array, plus a PNG +
+  case in `Helpers/ProviderIcons.cs` (ProviderId → icon; identifies dock buttons/hub rows — the
+  terse dock titles carry no provider identity) — the hub row and dock band then appear
+  automatically.
 - Model layering (MarketExtension convention): `Api*Dto` (wire format, all-nullable) → `Domain*`
-  (provider-agnostic, NO formatting) → `Ui*` (`Models/UiUsage.cs` — the ONLY formatting home). Enums
-  (`UsageWindowKind`, `UsageStatus`) unprefixed.
+  (provider-agnostic, NO formatting) → `Ui*` (`Models/UiUsage.cs` — the ONLY formatting home).
+  Enums (`UsageWindowKind`, `UsageStatus`) unprefixed.
 - Surfaces (two-level since 2026-08): `Pages/UsagePage.cs` (hub = **provider list**, one row per
-  provider with a "5h 23% · Wk 41%" summary subtitle + worst-window/status pills; also the top-level
-  command) → `Pages/UsageProviderPage.cs` (per-provider drill-in: window rows, status/plan rows,
-  Refresh — dock buttons bypass the hub, so those can't be hub-only) → and
+  provider with a "5h 23% · Wk 41%" summary subtitle + worst-window/status pills; also the
+  top-level command) → `Pages/UsageProviderPage.cs` (per-provider drill-in: window rows,
+  status/plan rows, Refresh — dock buttons bypass the hub, so those can't be hub-only) →
   `Pages/UsageDockPage.cs` (**one instance per provider** since 2026-08-13, observing
   `ObserveUsage(providerId)`; each `GetItems()` row = one dock button, title budget ~15 chars,
   **deep-links to that provider's page**; per-band `Id` = `…agentspanel.dock.<providerId>` — must
   stay unique. Deliberately NO "show provider X in dock" setting: the host's pin/unpin per band IS
   the chooser — ShowTokenStatsInDock is different, it toggles a button WITHIN a band). All three
-  implement the explicit
-  `INotifyItemsChanged` pattern: subscribe `ObserveUsage(...)` in the event's `add` accessor,
-  dispose-all in `remove`, `List<IDisposable>` (host may add twice), `private new void
-  RaiseItemsChanged`. `Pages/UsageProviderPageCache.cs` holds ONE `UsageProviderPage` per ProviderId,
-  shared by hub AND dock (built in `AgentsPanelCommandsProvider`) so both navigate into the same
-  instance; lazy, never evicts — an unobserved page holds no repository observer, so stale entries
-  are free.
+  implement the explicit `INotifyItemsChanged` pattern: subscribe `ObserveUsage(...)` in the
+  event's `add` accessor, dispose-all in `remove`, `List<IDisposable>` (host may add twice),
+  `private new void RaiseItemsChanged`. `Pages/UsageProviderPageCache.cs` holds ONE
+  `UsageProviderPage` per ProviderId, shared by hub AND dock (built in
+  `AgentsPanelCommandsProvider`) so both navigate into the same instance; lazy, never evicts — an
+  unobserved page holds no repository observer, so stale entries are free.
 - Provider-row summary/filter formatting lives in `UiUsage` (`VisibleWindows`/`SummaryText`/
   `WorstVisibleWindow` — the ShowModelWindows/ShowExtraUsage filter has ONE home now); status
-  pill/subtitle extraction lives in `UsageStatusHint.StatusTag`/`StatusSubtitle` (used by `StatusRow`
-  too — don't re-fork the colors/strings).
+  pill/subtitle extraction lives in `UsageStatusHint.StatusTag`/`StatusSubtitle` (used by
+  `StatusRow` too — don't re-fork the colors/strings).
 - **Token stats** (since 2026-08-15): `DomainTokenStats` rides `DomainUsageSnapshot.TokenStats`
-  (nullable — absent means "provider has no local logs / read failed", a QUIET absence, never an
-  error surface). All readers sum a **rolling 24h** window (deliberately not calendar-day: a
-  midnight reset zeroes the row mid-session); the Claude/Codex JSONL readers tail incrementally
-  (per-file byte offset; only
-  newline-complete lines consumed; shrunken files reparsed from zero), and all are attached AROUND the
-  quota fetch so they ride every outcome incl. NotConfigured/TokenExpired. The repository merge takes
-  the FRESH TokenStats even under keep-last-good (local logs succeed when HTTP fails).
-  `Data/Claude/ClaudeTokenLogReader.cs` tails `%USERPROFILE%\.claude\projects\*\*.jsonl` with
-  per-message-id dedupe (streaming rewrites repeat message ids; last wins).
-  `Data/Codex/CodexTokenLogReader.cs` tails `%CODEX_HOME%\sessions\yyyy\mm\dd\rollout-*.jsonl`
-  `token_count` events — ⚠️ `total_token_usage` is CUMULATIVE per session, so it DIFFS consecutive
-  events into timestamped deltas (never sums; rebaselines on a counter reset), and Codex's
-  `input_tokens` INCLUDES the cached subset, so fresh input = input − cached. Formatting:
-  `UiUsage.TokenSummary` ("56k in · 29k out · 2.2M cache read"; in = fresh input + cache WRITES — raw
-  input_tokens is a misleading crumb under prompt caching) + `TokenDockTitle`/`TokenTotalText`
-  ("24h 2.3M" / page-row tag — the TOTAL of all four counters, the ecosystem's glance number; any
-  single component reads as noise at first sight). Two settings: ShowTokenStats (page row) and
-  subordinate ShowTokenStatsInDock
-  (dock button; requires the first). Copilot has no local logs; stays null. opencode's stats come
-  from its SQLite DB via `Data/OpenCode/OpenCodeUsageReader.cs` (stateless windowed query, not a
-  tail — see its section below).
+  (nullable — absent is a QUIET absence, never an error surface); all readers sum a **rolling 24h**
+  window; formatting (`TokenSummary`/`TokenDockTitle`/`TokenTotalText`) lives in `UiUsage`.
+  ⚠️ Reader mechanics are subtle (incremental tails, cumulative-counter diffing, dedupe) — read
+  `notes/token-stats.md` before touching any of it.
 
-## The Claude data source (Data/Claude/ — deliberately isolated)
+## Data sources — read the note before touching
 
-`GET https://api.anthropic.com/api/oauth/usage`, `Authorization: Bearer <token>` from
-`%USERPROFILE%\.claude\.credentials.json`, `anthropic-beta: oauth-2025-04-20`, honest UA
-`agents-panel/<ver>` (**decision: no client spoofing**). ⚠️ **Undocumented endpoint, ToS-gray** for
-published tools; it can change or vanish — that's why everything endpoint-specific stays behind
-`IAgentUsageProvider` in `Data/Claude/`, so a replacement source is a drop-in sibling.
+Each provider is deliberately isolated behind `IAgentUsageProvider` in its own `Data/<Name>/`
+folder, so a replacement source is a drop-in sibling. All HTTP endpoints are ⚠️ **undocumented and
+ToS-gray** — they can change or vanish. Shared credential rules, no exceptions: **never log a
+token**, read credentials at call time only, **NO token refresh** (each provider's note explains
+why its refresh is dangerous); expired ⇒ `TokenExpired`. Honest UA, no client spoofing.
 
-- Response has TWO generations of shape: legacy named windows (`five_hour`, `seven_day`,
-  `seven_day_opus/sonnet` — the per-model ones are null now) AND the newer generic `limits` array
-  (`kind`: `session`/`weekly_all`/`weekly_scoped` + `scope.model.display_name`). **Map from `limits`
-  when present**; legacy is the fallback. Verified live 2026-08.
-- **Never log the token**; read credentials at call time only; NO token refresh (undocumented rotation
-  could log the user out of Claude Code) — expired ⇒ `TokenExpired` status.
-- Endpoint rate-limits hard: poll floor **3 min**, clamped in `UsageSettingsManager.RefreshMinutes`'s
-  getter (not just the placeholder). `HttpRetry` honors Retry-After, 3 attempts, 8s bail.
-
-## The Codex data source (Data/Codex/ — deliberately isolated, mirrors Data/Claude/)
-
-`GET https://chatgpt.com/backend-api/wham/usage`, `Authorization: Bearer <access_token>` +
-`ChatGPT-Account-Id: <account_id>` from `%CODEX_HOME%\auth.json` (default `%USERPROFILE%\.codex`),
-honest UA. Same ⚠️ **undocumented, ToS-gray** tier as the Claude endpoint (paths/fields/plan_type
-values have all churned across 2025–2026); reference implementations: openai/codex
-`codex-rs/backend-client` + steipete/CodexBar.
-
-- **Window shape varies BY PLAN** (why `UsageWindowKind` picks from `limit_window_seconds`, never the
-  primary/secondary slot): Plus/Pro report 5h primary + weekly secondary; the Go plan reports ONE
-  30-day primary (→ `Month` kind, "Mo" dock label) and a null secondary. Verified live 2026-08 on Go.
-- Reset time: `reset_at` (epoch seconds) when present, else `now + reset_after_seconds` — both
-  generations exist in the wild.
-- **Never log the token**; read credentials at call time; NO token refresh — a harder no than Claude:
-  Codex **rotates refresh tokens**, so a third-party refresh that doesn't write back perfectly logs
-  the user out of Codex itself. Expired ⇒ `TokenExpired`; Codex's own use refreshes it (~8-day cadence).
-  Plan type + expiry come from the access token's JWT claims (decoded unvalidated, local trust);
-  `id_token`/`refresh_token` are deliberately never deserialized.
-- On this dev machine Codex is the MSIX desktop app (`OpenAI.Codex`) — no `codex` CLI on PATH and
-  WindowsApps ACLs block spawning its bundled codex.exe, which is why the `codex app-server` JSON-RPC
-  route was rejected in favor of direct HTTP.
-
-## The Copilot data source (Data/Copilot/ — deliberately isolated, mirrors Data/Codex/)
-
-`GET https://api.github.com/copilot_internal/user`, `Authorization: Bearer <token>`, honest UA —
-deliberately NO Editor-Version masquerade (the endpoint answers plain user agents; Oh My Posh's
-copilot segment ships the same call). Same ⚠️ **undocumented, ToS-gray** tier as the other two
-(GitHub has never sanctioned third-party use of `copilot_internal`; the 2026-06 move to AI-credit
-billing already reshaped the response once). Reference implementations: Oh My Posh `copilot`
-segment, steipete/CodexBar, ericc-ch/copilot-api.
-
-- **Response shape varies BY PLAN and by billing generation** — `MapWindows` branches, in order:
-  (1) `quota_snapshots` (all current plans; verified live 2026-08 on Free: chat 200 + completions
-  2000 metered, premium_interactions zeroed) — skip buckets with `unlimited`, `has_quota=false`, or
-  `entitlement<=0` (**a zeroed bucket's `percent_remaining: 0` is "not metered", NOT "100% used"**;
-  credit-billed seats zero out all three — CodexBar#1258); (2) legacy free-tier
-  `limited_user_quotas`/`monthly_quotas` maps; (3) top-level `credits_used` → an ExtraUsage
-  "n used" row (cap/units unreported — no fabricated percentage). All windows are `Month` kind
-  (one shared monthly reset: `quota_reset_date_utc` → `quota_reset_date` → `limited_user_reset_date`);
-  `Qualifier` ("Chat"/"Code") tells multiple monthly buckets apart — `UiUsage` renders a qualified
-  Month like a qualified ModelWeek.
-- **Credential discovery chain** (`CopilotCredentialsReader`, first usable wins): settings PAT
-  override (`UsageSettingsManager.CopilotToken` — plain text in agentspanel.settings.json) → env
-  `COPILOT_GITHUB_TOKEN`/`GH_TOKEN`/`GITHUB_TOKEN` → Windows Credential Manager (one full
-  enumerate matching by target-name shape, **observed live**: Copilot CLI =
-  `<uuid>.github-copilot-app` — a SUFFIX match, CredEnumerate wildcards are prefix-only — and gh
-  secure storage = `gh:github.com:<user>`, go-keyring `service:user` naming, so exact `CredRead`
-  misses it; blob may be raw token or a JSON wrapper — both handled) → `%APPDATA%\GitHub CLI\
-  hosts.yml` (hand-parsed, GH_CONFIG_DIR honored; empty of tokens when secure storage is in use) →
-  `%LOCALAPPDATA%\github-copilot\apps.json`/`hosts.json`. Classic `ghp_` PATs are skipped
-  everywhere (endpoint rejects them); `gho_`/`ghu_` OAuth tokens and fine-grained PATs
-  (*Copilot Requests: Read*) work.
-- **Never log the token** (log only the source label); read at call time; NO token refresh — these
-  are other apps' long-lived OAuth tokens. GitHub tokens are opaque (no JWT claims), so there's no
-  local expiry check: a dead/rejected token surfaces as 401/403 ⇒ `TokenExpired`.
-
-## The opencode data source (Data/OpenCode/ — LOCAL-ONLY, no HTTP at all)
-
-The deliberate v1 shape, because **opencode has no balance/usage API**: `/zen/v1/balance` and
-`/zen/v1/usage` 404 (probed live 2026-08-15); upstream requests anomalyco/opencode **#10448** (Zen
-balance) + **#16017** (Go plan windows) both open. The only remote source is the opencode.ai
-dashboard's cookie-authenticated `_server?id=<build-hash>` RPC (what steipete/CodexBar scrapes on
-macOS) — **rejected**: Windows browser-cookie decryption is invasive, and the function ids are
-frontend-build hashes that churn every deploy. When the balance endpoint ships, the HTTP fetch
-drops into `OpenCodeUsageProvider` as the quota path (auth.json API key, read at call time, never
-logged, no refresh) — same seam as the other providers.
-
-- Everything comes from opencode's local data dir (xdg-style even on Windows:
-  `XDG_DATA_HOME` ?? `%USERPROFILE%\.local\share`, + `\opencode`):
-  - `auth.json` (`OpenCodeCredentialsReader`) — a map `providerID → {type: api|oauth|wellknown, …}`;
-    an `"opencode"` entry (Zen login = `type: "api"`) is the ONLY thing checked, purely for the
-    NotConfigured/Ok pivot. **v1 never extracts the key** — there's nothing to spend it on.
-  - `opencode.db` (`OpenCodeUsageReader`, Microsoft.Data.Sqlite) — WAL-mode SQLite. The `message`
-    table's assistant rows carry `data` JSON with `providerID`/`cost` (USD)/`tokens{input, output,
-    reasoning, cache{read,write}}` and `time_created` in epoch **milliseconds** (verified live
-    2026-08). One windowed query per poll (stateless — no tailing), `json_extract` in SQL so message
-    CONTENT never leaves the database. ⚠️ The `session` table's counters are cumulative-per-session —
-    can't be time-windowed; don't "simplify" to them.
-- Reports: one `ExtraUsage` window = rolling-24h **gateway spend** (`Σ cost WHERE providerID =
-  'opencode'` — Zen credits / Go balance-fallback, the money that actually leaves the account;
-  Go-subscription-covered messages record cost 0 locally so the sum stays honest) with
-  `Qualifier "24h"` + `Unit "USD"` (renders "$0.13 used" / dock "24h $0.13" — `Unit` is what
-  separates verified dollars from Copilot's unit-unknown bare "n used"), plus TokenStats over ALL
-  opencode messages (reasoning folds into output). No HTTP ⇒ status is only ever
-  NotConfigured (no auth.json entry) or Ok; a failed DB read degrades to an empty-Ok snapshot
-  (quiet absence).
-- SQLite read strategy: `Mode=ReadOnly; Pooling=False` (no handle survives the poll),
-  `CommandTimeout=2` (= busy timeout). Read-only WAL access works mid-session (live `-shm`) and
-  after clean exit; the crash-orphaned-wal edge falls back to copying db+wal+shm to temp and
-  querying the copy. Any failure → null this poll, retried next.
-- DisplayName/Id are `opencode` (lowercase brand; names the AGENT, not a billing product — Go and
-  Zen are billing modes of the same account, so a "Zen" row would age badly).
+- **Claude** (`Data/Claude/`, `notes/provider-claude.md`) — `api.anthropic.com/api/oauth/usage`
+  with the Claude Code OAuth token. ⚠️ Response has two shape generations — map from `limits` when
+  present; poll floor 3 min (endpoint rate-limits hard).
+- **Codex** (`Data/Codex/`, `notes/provider-codex.md`) — `chatgpt.com/backend-api/wham/usage` with
+  the Codex auth.json token. ⚠️ Window shape varies by plan — pick `UsageWindowKind` from
+  `limit_window_seconds`, never the primary/secondary slot.
+- **Copilot** (`Data/Copilot/`, `notes/provider-copilot.md`) — `api.github.com/copilot_internal/
+  user` via a five-step credential discovery chain. ⚠️ A zeroed quota bucket means "not metered",
+  NOT "100% used".
+- **opencode** (`Data/OpenCode/`, `notes/provider-opencode.md`) — LOCAL-ONLY (no usage API exists
+  yet): auth.json for the NotConfigured/Ok pivot + windowed SQLite reads of `opencode.db`.
+  ⚠️ The `session` table's counters are cumulative-per-session — don't "simplify" to them.
 
 ## Build & Deploy
 
@@ -236,8 +127,8 @@ So:
 - ⚠️ **The Write tool drops Segoe MDL2 glyph chars.** Always write them as `\uXXXX` escapes and
   byte-check after editing. (Bit us during initial development of this very repo.)
 - ⚠️ **`ObserveOn(TaskPoolScheduler.Default)` in `UsageRepository.ObserveUsage` is load-bearing** —
-  removing it (or "fixing" with `SubscribeOn`) re-creates the Rx-gate↔STA deadlock that hangs CmdPal.
-  Don't add `Task.Run` on the delivery path either.
+  removing it (or "fixing" with `SubscribeOn`) re-creates the Rx-gate↔STA deadlock that hangs
+  CmdPal. Don't add `Task.Run` on the delivery path either.
 - ⚠️ **Page-activation:** `GetItems()` runs before `ItemsChanged` is subscribed — a constructor
   `RaiseItemsChanged` is lost. First paint must come from the `add`-accessor subscription replay.
 - ⚠️ **Dock bands require a non-empty command `Id`** or the band silently disappears — and with one
@@ -246,14 +137,14 @@ So:
   (`Data/Claude/ApiClaudeDtos.cs`, `Data/Codex/ApiCodexDtos.cs` — one context per provider) —
   splitting silently breaks the generator.
 - ⚠️ **`TextSetting` renders `Description` as the on-screen label** (Label is ignored by Input.Text).
-- **PollTicker source operators must never throw** — a throw OnErrors the multicast and kills polling
-  for every subscriber until reload. Settings reads stay parse-with-fallback.
+- **PollTicker source operators must never throw** — a throw OnErrors the multicast and kills
+  polling for every subscriber until reload. Settings reads stay parse-with-fallback.
 - AOT/trim intentionally OFF — reflection-based code is fine.
 
 ## Git
 
-- Never amend commits (`git commit --amend`) — always create a new commit, unless explicitly asked to
-  amend in the moment.
+- Never amend commits (`git commit --amend`) — always create a new commit, unless explicitly asked
+  to amend in the moment.
 - **Never commit on your own** — leave changes in the working tree and let the user review; commit
   only when explicitly asked in that moment (a general "commit when done" in a plan does not carry
   over to later work).
