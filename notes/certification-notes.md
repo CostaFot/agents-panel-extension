@@ -40,8 +40,8 @@ https://costafot.github.io/agents-panel-extension/privacy.html
 
 Notes to self (not for the reviewer):
 
-- The privacy URL above assumes GitHub Pages is enabled on the repo (B5); verify it resolves
-  before submitting.
+- The privacy URL above was verified live 2026-08-14 (Pages enabled + deployed, page serves the
+  real policy).
 - If certification pushes back on the "Not signed in" rows anyway, the fallback argument: the Store
   policy concern is apps that are non-functional without undisclosed purchases — the listing
   discloses the subscription requirement (B8) and the Copilot path above gives the reviewer a
