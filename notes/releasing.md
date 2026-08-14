@@ -33,6 +33,8 @@ Also update the "Current version" line at the top of this file. Commit message =
 
 ## Release (once E18/E19 land)
 
+⚠️ **User-only step** — agents never run `gh workflow run` (or commit) on their own; see AGENTS.md.
+
 ```
 gh workflow run release-msix.yml --ref main -f release_notes="…"
 ```

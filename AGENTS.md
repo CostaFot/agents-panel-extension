@@ -192,3 +192,8 @@ So:
 
 - Never amend commits (`git commit --amend`) — always create a new commit, unless explicitly asked to
   amend in the moment.
+- **Never commit on your own** — leave changes in the working tree and let the user review; commit
+  only when explicitly asked in that moment (a general "commit when done" in a plan does not carry
+  over to later work).
+- **Never run GitHub workflows** (`gh workflow run`, `gh run rerun`, or anything else that triggers
+  CI/releases) — those are the user's to fire, only on an explicit ask in the moment.
