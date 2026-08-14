@@ -32,7 +32,8 @@ manifest description written, minimal capabilities, GitHub remote configured.
   parked at `listing/agentspanel_logo_1280.png` (source for any future VS asset regen + README/
   social art); the in-package `Assets/agentspanel_logo_base_square.png` is a 256px derivative
   (23 KB, down from 1.17 MB). `provider_copilot.png` was resolved by A2.
-- [ ] **A4 [user] Partner Center name reservation.** Reserve "Agents Panel for Command Palette";
+- [x] **A4 [user] Partner Center name reservation.** (done — app published 2026-08-14, so the
+  reservation and identity match are proven.) Reserve "Agents Panel for Command Palette";
   confirm the assigned `Identity Name` matches `CostaFotiadis.AgentsPanelforCommandPalette` in
   `Package.appxmanifest` + csproj `AppxPackageIdentityName`. Publisher CN already matches.
 
@@ -120,7 +121,9 @@ manifest description written, minimal capabilities, GitHub remote configured.
 
 ## F. Store submission & post-Store
 
-- [ ] **F22 [user] Submit to Partner Center.** Run `release-msix.yml` → download the
+- [x] **F22 [user] Submit to Partner Center.** (done — **published 2026-08-14, Store ID
+  `9N8KK0W45HG8`**, https://apps.microsoft.com/detail/9N8KK0W45HG8. README Store badge
+  uncommented; WinGet snippet stays commented until F23 merges.) Run `release-msix.yml` → download the
   `.msixbundle` from the GitHub Release → Partner Center → new submission → upload → listing copy
   (B8) + screenshots (E21) + privacy URL (B5) + certification notes (B9) → submit. `runFullTrust`
   needs its standard justification (CmdPal COM extension-host requirement).
