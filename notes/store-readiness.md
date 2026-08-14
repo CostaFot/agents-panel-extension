@@ -38,11 +38,11 @@ manifest description written, minimal capabilities, GitHub remote configured.
 
 ## B. Certification blockers — content & legal
 
-- [x] **B5 [agent] Hosted privacy policy + terms.** (docs/ + deploy-pages.yml written 2026-08-14; **[user] still to do: enable GitHub Pages on the repo** — Settings → Pages → Source: GitHub Actions) Partner Center requires a privacy-policy URL.
+- [x] **B5 [agent] Hosted privacy policy + terms.** (docs/ + deploy-pages.yml written 2026-08-14;
+  GitHub Pages enabled + deployed 2026-08-14) Partner Center requires a privacy-policy URL.
   Create `docs/{index,privacy,terms}.html` + `style.css` modeled on MarketExtension's `docs/`,
   adapted to this app: credentials read locally from other apps' stores, requests go directly to
-  Anthropic/OpenAI/GitHub, zero telemetry, Copilot PAT stored plaintext in settings JSON. Copy
-  `deploy-pages.yml`; **[user]** enables GitHub Pages on the repo.
+  Anthropic/OpenAI/GitHub, zero telemetry, Copilot PAT stored plaintext in settings JSON.
 - [x] **B6 [agent] LICENSE.** Add MIT (matching MarketExtension). Without it the public repo is
   all-rights-reserved by default.
 - [x] **B7 [agent] README fixes.** (demo-mode claim removed, build/deploy section fixed 2026-08-14; badges/screenshots deferred to post-approval) Remove the false "Demo mode" claim (line 24 — decided: not
