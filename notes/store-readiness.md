@@ -27,11 +27,11 @@ manifest description written, minimal capabilities, GitHub remote configured.
   (already-padded art double-insets) → regenerate every scale/targetsize variant. The same square
   source is the in-app icon (`AgentsPanelCommandsProvider.cs`, `UsagePage.cs`, `LegalPage.cs`,
   `ProviderIcons.cs` fallback) — two separate icon systems, one source image.
-- [ ] **A2 [user] Real `provider_copilot.png`.** Currently byte-identical to the app logo
-  (1289×1289, 1.17 MB). Needs a purpose-made 64×64 mark like `provider_claude.png` /
-  `provider_codex.png`.
-- [ ] **A3 [agent] Downsize oversized icons.** `agentspanel_logo_base_square.png` (1.17 MB) and
-  `provider_copilot.png` load for 16–32 px rows — ~2.3 MB of package bloat. (After A1/A2 land.)
+- [x] **A2 [agent] Real `provider_copilot.png`.** (done 2026-08-14 — decision: NO real third-party
+  branding for any provider icon, generic tiles only. New 64×64 purple rounded tile with white
+  `{ }` braces glyph, matching the Claude "C" / Codex ">_" tile system; 997 bytes.)
+- [ ] **A3 [agent] Downsize oversized icons.** `agentspanel_logo_base_square.png` (1.17 MB) loads
+  for 16–32 px rows — package bloat. (After A1 lands; `provider_copilot.png` resolved by A2.)
 - [ ] **A4 [user] Partner Center name reservation.** Reserve "Agents Panel for Command Palette";
   confirm the assigned `Identity Name` matches `CostaFotiadis.AgentsPanelforCommandPalette` in
   `Package.appxmanifest` + csproj `AppxPackageIdentityName`. Publisher CN already matches.
