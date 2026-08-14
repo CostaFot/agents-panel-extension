@@ -140,8 +140,10 @@ manifest description written, minimal capabilities, GitHub remote configured.
   "Show model-specific limits (e.g. Opus, Sonnet) as their own rows" / "Show pay-as-you-go extra
   usage when the account reports it" (the old "credits balance" was wrong for Copilot's "n used"
   row).
-- [ ] **G27 [agent] HttpClient timeout.** Verify `HttpRetry`'s 8s bail actually caps wall time;
-  consider an explicit `Timeout` (default is 100s).
+- [x] **G27 [agent] HttpClient timeout.** (decided 2026-08-14: **won't do.** Verified the 8s
+  `MaxDelay` only caps retry waits, NOT request wall time — the 100s HttpClient default applies per
+  attempt. Accepted: MarketExtension ships the same default with no issues, the UI never blocks,
+  and keep-last-good + stale text absorb a slow fetch. Trivial retrofit if ever reported.)
 - [ ] **G28 [agent] Delete dead `Assets/LockScreenLogo.scale-200.png`** (unreferenced VS template
   leftover).
 
