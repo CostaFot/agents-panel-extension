@@ -120,6 +120,32 @@ internal sealed record UiUsage(DomainUsageSnapshot Snapshot)
     public UiUsageWindow? WorstVisibleWindow(UsageSettingsManager settings) =>
         VisibleWindows(settings).OrderByDescending(w => w.Window.Utilization).FirstOrDefault();
 
+    // "56k in · 29k out · 2.2M cache read" for the provider page's "Tokens (24h)" row — the last 24
+    // hours' counts from the provider's local session logs. "in" = fresh input + cache WRITES (tokens entering the
+    // model as new context) — the raw input_tokens alone is a misleading crumb once prompt caching is
+    // doing its job (observed: 56 for a full day). Cache READS stay separate: they're replay volume,
+    // interesting but a different beast. Null when the provider has no local logs, the read failed, or
+    // the setting is off.
+    public string? TokenSummary(UsageSettingsManager settings)
+    {
+        if (!settings.ShowTokenStats || Snapshot.TokenStats is not { } tokens)
+            return null;
+        return Strings.Format(
+            Resources.Tokens_Summary,
+            FormatTokens(tokens.InputTokens + tokens.CacheWriteTokens),
+            FormatTokens(tokens.OutputTokens),
+            FormatTokens(tokens.CacheReadTokens));
+    }
+
+    // Compact count: 823 → "823", 52_300 → "52k", 1_430_000 → "1.4M". One decimal only while the
+    // leading figure is a single digit. Invariant digits, matching FormatPercent.
+    private static string FormatTokens(long count) => count switch
+    {
+        >= 1_000_000 => ((double)count / 1_000_000).ToString(count < 10_000_000 ? "0.#" : "0", CultureInfo.InvariantCulture) + "M",
+        >= 1_000 => ((double)count / 1_000).ToString(count < 10_000 ? "0.#" : "0", CultureInfo.InvariantCulture) + "k",
+        _ => count.ToString(CultureInfo.InvariantCulture),
+    };
+
     // "stale · as of 17:02" — shown on window rows when the numbers survived a failed refresh
     // (keep-last-good); null when the snapshot is fresh.
     public string? StaleText()

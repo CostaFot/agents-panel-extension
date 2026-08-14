@@ -160,6 +160,10 @@ internal sealed class UsageRepository
     // them, so the UI shows the last real numbers marked stale. A fresh Ok replaces outright. So does
     // NotConfigured: the credentials are GONE, and old numbers with a "sign in" prompt would mislead.
     // Membership is defined by the fresh set — providers that dropped out (IsAvailable off) disappear.
+    //
+    // TokenStats ride the FRESH snapshot even under keep-last-good: they come from local logs, so a
+    // failed endpoint poll usually still carries current counts. Only a fresh null (log read failed)
+    // keeps the old value.
     private static IReadOnlyList<DomainUsageSnapshot> Merge(
         IReadOnlyList<DomainUsageSnapshot> prev, DomainUsageSnapshot[] fresh)
     {
@@ -171,7 +175,11 @@ internal sealed class UsageRepository
                 && prevById.TryGetValue(snapshot.ProviderId, out var last)
                 && last.Windows.Count > 0;
             merged.Add(keepLastGood
-                ? prevById[snapshot.ProviderId] with { Status = snapshot.Status }
+                ? prevById[snapshot.ProviderId] with
+                {
+                    Status = snapshot.Status,
+                    TokenStats = snapshot.TokenStats ?? prevById[snapshot.ProviderId].TokenStats,
+                }
                 : snapshot);
         }
 

@@ -34,6 +34,10 @@ internal sealed class ClaudeUsageProvider : IAgentUsageProvider
     // per-request because the token is re-read from disk on every fetch.
     private static readonly HttpClient Http = CreateClient();
 
+    // Tails Claude Code's local transcripts for the last 24h's token counts. Stateful (per-file byte
+    // offsets) — must live as long as the provider so increments stay cheap across polls.
+    private readonly ClaudeTokenLogReader _tokenLogReader = new();
+
     public string Id => "claude";
 
     public string DisplayName => "Claude";
@@ -43,6 +47,14 @@ internal sealed class ClaudeUsageProvider : IAgentUsageProvider
     public bool IsAvailable => true;
 
     public async Task<DomainUsageSnapshot> GetUsageAsync(CancellationToken ct = default)
+    {
+        // Token stats come from LOCAL logs — independent of the endpoint, so they ride on every
+        // outcome, including NotConfigured/TokenExpired (the row still works while signed out).
+        var snapshot = await FetchQuotaAsync(ct).ConfigureAwait(false);
+        return snapshot with { TokenStats = _tokenLogReader.ReadLast24Hours() };
+    }
+
+    private async Task<DomainUsageSnapshot> FetchQuotaAsync(CancellationToken ct)
     {
         // Read credentials at call time — a sign-in/sign-out applies on the next poll, no reload.
         var credentials = ClaudeCredentialsReader.Read();

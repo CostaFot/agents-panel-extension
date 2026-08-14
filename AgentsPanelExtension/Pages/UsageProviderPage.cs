@@ -24,6 +24,7 @@ internal sealed partial class UsageProviderPage : ListPage, INotifyItemsChanged
     private const string SessionGlyph = "\uE823";  // Segoe MDL2 Recent (clock)
     private const string WeekGlyph = "\uE787";     // Segoe MDL2 Calendar
     private const string ExtraGlyph = "\uE8C7";    // Segoe MDL2 Payment
+    private const string TokensGlyph = "\uE8EF";   // Segoe MDL2 Calculator
 
     private readonly UsageRepository _repository;
     private readonly string _providerId;
@@ -106,6 +107,19 @@ internal sealed partial class UsageProviderPage : ListPage, INotifyItemsChanged
             {
                 Title = Resources.Usage_Empty_Title,
                 Subtitle = Resources.Usage_Empty_Subtitle,
+            });
+        }
+
+        // The last 24h's token counts from the provider's LOCAL session logs (machine-local activity,
+        // not quota) — present even when the endpoint is failing or signed out, since the logs are
+        // ours to read either way.
+        if (usage.TokenSummary(settings) is { } tokenSummary)
+        {
+            items.Add(new ListItem(new NoOpCommand { Id = $"{Id}.tokens" })
+            {
+                Title = Resources.Tokens_Last24h_Title,
+                Subtitle = tokenSummary,
+                Icon = new IconInfo(TokensGlyph),
             });
         }
 

@@ -212,6 +212,24 @@ namespace AgentsPanelExtension.Properties {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Tokens (24h).
+        /// </summary>
+        public static string Tokens_Last24h_Title {
+            get {
+                return ResourceManager.GetString("Tokens_Last24h_Title", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} in · {1} out · {2} cache read.
+        /// </summary>
+        public static string Tokens_Summary {
+            get {
+                return ResourceManager.GetString("Tokens_Summary", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Can't reach {0}.
         /// </summary>
         public static string Status_Error_Title {
@@ -487,6 +505,24 @@ namespace AgentsPanelExtension.Properties {
         public static string Settings_ShowExtraUsage_Label {
             get {
                 return ResourceManager.GetString("Settings_ShowExtraUsage_Label", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Token counts.
+        /// </summary>
+        public static string Settings_ShowTokenStats_Label {
+            get {
+                return ResourceManager.GetString("Settings_ShowTokenStats_Label", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Show tokens used in the last 24 hours, read from the agent's local session logs on this PC.
+        /// </summary>
+        public static string Settings_ShowTokenStats_Desc {
+            get {
+                return ResourceManager.GetString("Settings_ShowTokenStats_Desc", resourceCulture);
             }
         }
 

@@ -60,9 +60,31 @@ internal sealed record ApiClaudeOauthDto(
     [property: JsonPropertyName("subscriptionType")] string? SubscriptionType,
     [property: JsonPropertyName("rateLimitTier")] string? RateLimitTier);
 
+// One line of a Claude Code transcript (%USERPROFILE%\.claude\projects\<slug>\<session>.jsonl) — only
+// the sliver ClaudeTokenLogReader needs. Assistant lines carry message.usage (the API's own usage
+// object); everything else (user lines, summaries, tool results) has Type != "assistant" or a null
+// Usage and is skipped. The same message id can appear on SEVERAL lines (streaming rewrites, verified
+// live 2026-08) — readers must dedupe by message id, keeping the LAST occurrence.
+internal sealed record ApiClaudeTranscriptLineDto(
+    [property: JsonPropertyName("type")] string? Type,
+    [property: JsonPropertyName("timestamp")] string? Timestamp,      // ISO-8601 UTC
+    [property: JsonPropertyName("requestId")] string? RequestId,
+    [property: JsonPropertyName("message")] ApiClaudeTranscriptMessageDto? Message);
+
+internal sealed record ApiClaudeTranscriptMessageDto(
+    [property: JsonPropertyName("id")] string? Id,
+    [property: JsonPropertyName("usage")] ApiClaudeTranscriptUsageDto? Usage);
+
+internal sealed record ApiClaudeTranscriptUsageDto(
+    [property: JsonPropertyName("input_tokens")] long? InputTokens,
+    [property: JsonPropertyName("output_tokens")] long? OutputTokens,
+    [property: JsonPropertyName("cache_read_input_tokens")] long? CacheReadInputTokens,
+    [property: JsonPropertyName("cache_creation_input_tokens")] long? CacheCreationInputTokens);
+
 // ⚠️ ALL [JsonSerializable] attributes for this context MUST stay on this ONE partial declaration.
 // Splitting them across multiple partials silently breaks the source generator for the whole build
 // (every context type comes back null at runtime) — MarketExtension hit exactly this.
 [JsonSerializable(typeof(ApiClaudeUsageDto))]
 [JsonSerializable(typeof(ApiClaudeCredentialsFileDto))]
+[JsonSerializable(typeof(ApiClaudeTranscriptLineDto))]
 internal sealed partial class ClaudeJsonContext : JsonSerializerContext;
