@@ -38,25 +38,25 @@ manifest description written, minimal capabilities, GitHub remote configured.
 
 ## B. Certification blockers — content & legal
 
-- [ ] **B5 [agent] Hosted privacy policy + terms.** Partner Center requires a privacy-policy URL.
+- [x] **B5 [agent] Hosted privacy policy + terms.** (docs/ + deploy-pages.yml written 2026-08-14; **[user] still to do: enable GitHub Pages on the repo** — Settings → Pages → Source: GitHub Actions) Partner Center requires a privacy-policy URL.
   Create `docs/{index,privacy,terms}.html` + `style.css` modeled on MarketExtension's `docs/`,
   adapted to this app: credentials read locally from other apps' stores, requests go directly to
   Anthropic/OpenAI/GitHub, zero telemetry, Copilot PAT stored plaintext in settings JSON. Copy
   `deploy-pages.yml`; **[user]** enables GitHub Pages on the repo.
-- [ ] **B6 [agent] LICENSE.** Add MIT (matching MarketExtension). Without it the public repo is
+- [x] **B6 [agent] LICENSE.** Add MIT (matching MarketExtension). Without it the public repo is
   all-rights-reserved by default.
-- [ ] **B7 [agent] README fixes.** Remove the false "Demo mode" claim (line 24 — decided: not
+- [x] **B7 [agent] README fixes.** (demo-mode claim removed, build/deploy section fixed 2026-08-14; badges/screenshots deferred to post-approval) Remove the false "Demo mode" claim (line 24 — decided: not
   implementing it); fix "Deploy the MSIX from Visual Studio" (line 52) vs the Rider reality. Later
   (after Store approval): release/downloads badges, Store badge
   (`https://apps.microsoft.com/detail/<store-id>`), winget one-liner, screenshots — copy
   MarketExtension's README structure.
-- [ ] **B8 [either] Store listing copy → `notes/store-listing.md`.** Short + full description,
+- [x] **B8 [either] Store listing copy → `notes/store-listing.md`.** (drafted 2026-08-14 — user reviews before Partner Center paste) Short + full description,
   **non-affiliation paragraph** (not affiliated with/endorsed by Anthropic, OpenAI, GitHub, or
   Microsoft), disclose that the app requires third-party subscriptions/sign-ins (Store policy),
   disclaimer that data comes from undocumented endpoints and may stop working or be inaccurate.
   Never overclaim: no "official", no "real-time". Trademark use nominative only — extra care since
   all three endpoints are ToS-gray.
-- [ ] **B9 [either] Certification test notes.** A Store reviewer has no Claude/Codex/Copilot
+- [x] **B9 [either] Certification test notes.** (drafted 2026-08-14 → `notes/certification-notes.md`) A Store reviewer has no Claude/Codex/Copilot
   credentials, so they'll see three "Sign in" rows. Write submission notes explaining what the app
   does, why those rows appear, and how to exercise the UI (e.g. the Copilot PAT setting with a
   fine-grained test token, if feasible). C10 makes those rows self-explanatory, which helps here.
@@ -97,7 +97,7 @@ manifest description written, minimal capabilities, GitHub remote configured.
   run as admin, set GitHub secrets `SIGNING_CERT_PFX` (base64) + `SIGNING_CERT_PASSWORD`.
   `.gitignore` already covers `*.pfx`. Later, for WinGet: `WINGET_TOKEN` (classic PAT,
   public_repo).
-- [ ] **E19 [agent] Workflows.** Copy into `.github/workflows/` and rename env vars
+- [x] **E19 [agent] Workflows.** (build-check/release-msix/deploy-pages written 2026-08-14; release-extension.yml + Inno Setup deferred as noted) Copy into `.github/workflows/` and rename env vars
   (`DISPLAY_NAME`/`EXTENSION_NAME`/`FOLDER_NAME`): `build-check.yml` (PR gate),
   `release-msix.yml` (x64+ARM64 → makeappx bundle → signtool → GitHub Release),
   `deploy-pages.yml`. Optional later: `release-extension.yml` + `build-exe.ps1` +

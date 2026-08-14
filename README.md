@@ -21,7 +21,6 @@ usefully, from the **Command Palette Dock**.
   (chat / completions / premium requests, per plan).
 - **Extensible by design**: providers implement a small `IAgentUsageProvider` interface; more agents
   can slot in later.
-- **Demo mode**: built-in sample data to try the UI with no account at all.
 - Stale-tolerant: if a refresh fails (offline, rate-limited), the last known numbers stay visible and
   are marked stale instead of vanishing.
 
@@ -46,7 +45,8 @@ usefully, from the **Command Palette Dock**.
 ## Building
 
 ```
-dotnet build AgentsPanelExtension.sln
+dotnet build AgentsPanelExtension.sln -p:Platform=x64
 ```
 
-Deploy the MSIX from Visual Studio (the "(Package)" launch profile), then reload Command Palette.
+Deploy the MSIX package from your IDE (Rider or Visual Studio's "(Package)" launch profile), then
+reload Command Palette.
