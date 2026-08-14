@@ -97,11 +97,20 @@ namespace AgentsPanelExtension.Properties {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Use {0} to refresh the sign-in.
+        ///   Looks up a localized string similar to The saved {0} sign-in has expired.
         /// </summary>
         public static string Dock_Expired_Subtitle {
             get {
                 return ResourceManager.GetString("Dock_Expired_Subtitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Rate-limited.
+        /// </summary>
+        public static string Dock_RateLimited_Title {
+            get {
+                return ResourceManager.GetString("Dock_RateLimited_Title", resourceCulture);
             }
         }
 
@@ -124,7 +133,7 @@ namespace AgentsPanelExtension.Properties {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Sign in.
+        ///   Looks up a localized string similar to Not signed in.
         /// </summary>
         public static string Dock_SignIn_Title {
             get {

@@ -71,8 +71,11 @@ manifest description written, minimal capabilities, GitHub remote configured.
   all providers — including "Not signed in" rows for unused ones — is acceptable; and the dock
   already gives full per-provider control via the host's own pin/unpin per band (one band per
   provider), which was the deliberate design. `IsAvailable` stays a dormant seam.)
-- [ ] **C12 [agent] Fix misleading empty dock band.** `UsageDockPage.cs` falls through to
-  "No usage data" / "Can't reach Claude" for an Ok-but-empty account — wrong on both lines.
+- [x] **C12 [agent] Fix misleading empty dock band.** (fixed 2026-08-14) Zero-window fall-through
+  split per status: Ok-but-empty → "No usage data" / "The account reported no active limits";
+  RateLimited → "Rate-limited" / rate-limit subtitle; Error keeps "Can't reach {0}". Dock wording
+  also made neutral per the C10 decision ("Not signed in"; expired subtitle no longer tells the
+  user to go use the agent — behavior "can change", so no promises).
 - [ ] **C13 [agent] Hardcoded strings → resx.** `Program.cs` direct-launch MessageBox + caption;
   `Pages/LegalPage.cs` inline legal Markdown (~45 lines). Both violate the project's own rule.
 

@@ -113,7 +113,8 @@ internal sealed partial class UsageDockPage : ListPage, INotifyItemsChanged
             });
         }
 
-        // No windows to show — the button IS the status (sign in / token expired / no data).
+        // No windows to show — the button IS the status. Ok-but-empty is a healthy account that
+        // reported no active limits; it must NOT borrow the error wording (we reached the API fine).
         if (usage.Windows.Count == 0)
         {
             var (title, subtitle) = usage.Snapshot.Status switch
@@ -122,6 +123,9 @@ internal sealed partial class UsageDockPage : ListPage, INotifyItemsChanged
                     Strings.Format(Resources.Dock_SignIn_Subtitle, usage.Snapshot.ProviderDisplayName)),
                 UsageStatus.TokenExpired => (Resources.Dock_Expired_Title,
                     Strings.Format(Resources.Dock_Expired_Subtitle, usage.Snapshot.ProviderDisplayName)),
+                UsageStatus.RateLimited => (Resources.Dock_RateLimited_Title,
+                    Strings.Format(Resources.Status_RateLimited_Title, usage.Snapshot.ProviderDisplayName)),
+                UsageStatus.Ok => (Resources.Usage_Empty_Title, Resources.Usage_Empty_Subtitle),
                 _ => (Resources.Usage_Empty_Title,
                     Strings.Format(Resources.Status_Error_Title, usage.Snapshot.ProviderDisplayName)),
             };

@@ -167,7 +167,7 @@
     <value>Error</value>
   </data>
   <data name="Dock_SignIn_Title" xml:space="preserve">
-    <value>Sign in</value>
+    <value>Not signed in</value>
   </data>
   <data name="Dock_SignIn_Subtitle" xml:space="preserve">
     <value>{0} login not found</value>
@@ -176,7 +176,10 @@
     <value>Token expired</value>
   </data>
   <data name="Dock_Expired_Subtitle" xml:space="preserve">
-    <value>Use {0} to refresh the sign-in</value>
+    <value>The saved {0} sign-in has expired</value>
+  </data>
+  <data name="Dock_RateLimited_Title" xml:space="preserve">
+    <value>Rate-limited</value>
   </data>
   <data name="Settings_Refresh_Label" xml:space="preserve">
     <value>Refresh interval</value>
