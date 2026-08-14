@@ -76,8 +76,9 @@ manifest description written, minimal capabilities, GitHub remote configured.
   RateLimited → "Rate-limited" / rate-limit subtitle; Error keeps "Can't reach {0}". Dock wording
   also made neutral per the C10 decision ("Not signed in"; expired subtitle no longer tells the
   user to go use the agent — behavior "can change", so no promises).
-- [ ] **C13 [agent] Hardcoded strings → resx.** `Program.cs` direct-launch MessageBox + caption;
-  `Pages/LegalPage.cs` inline legal Markdown (~45 lines). Both violate the project's own rule.
+- [x] **C13 [agent] Hardcoded strings → resx.** (done 2026-08-14) `DirectLaunch_Message` (format
+  string over `Extension_DisplayName`/`Command_AgentsPanel`; caption reuses `Extension_DisplayName`)
+  + `Legal_Markdown` moved to resx, Designer.cs in lock-step. No wording changes.
 
 ## D. Versioning & build hygiene
 
