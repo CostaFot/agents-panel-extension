@@ -97,7 +97,7 @@ namespace AgentsPanelExtension.Properties {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0} sign-in needs a refresh.
+        ///   Looks up a localized string similar to Use {0} to refresh the sign-in.
         /// </summary>
         public static string Dock_Expired_Subtitle {
             get {
@@ -268,7 +268,7 @@ namespace AgentsPanelExtension.Properties {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Open the agent's own app to refresh it.
+        ///   Looks up a localized string similar to Just use the agent — its own app refreshes the sign-in.
         /// </summary>
         public static string Status_TokenExpired_Subtitle {
             get {
