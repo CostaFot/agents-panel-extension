@@ -66,19 +66,21 @@ Single observable source of truth; every surface OBSERVES, none fetches:
   too — don't re-fork the colors/strings).
 - **Token stats** (since 2026-08-15): `DomainTokenStats` rides `DomainUsageSnapshot.TokenStats`
   (nullable — absent means "provider has no local logs / read failed", a QUIET absence, never an
-  error surface). Claude only so far: `Data/Claude/ClaudeTokenLogReader.cs` tails
-  `%USERPROFILE%\.claude\projects\*\*.jsonl` incrementally (per-file byte offset + per-message-id
-  dedupe — streaming rewrites repeat message ids; last wins), summing a **rolling 24h** window
-  (deliberately not calendar-day: a midnight reset zeroes the row mid-session), attached AROUND the
-  quota fetch so it rides every outcome incl. NotConfigured/TokenExpired. The repository merge takes
-  the FRESH TokenStats even under keep-last-good (local logs succeed when HTTP fails). Formatting:
-  `UiUsage.TokenSummary` ("56k in · 29k out · 2.2M cache read"; in = input + cache WRITES — raw
+  error surface). Both readers sum a **rolling 24h** window (deliberately not calendar-day: a
+  midnight reset zeroes the row mid-session), tail incrementally (per-file byte offset; only
+  newline-complete lines consumed; shrunken files reparsed from zero), and are attached AROUND the
+  quota fetch so they ride every outcome incl. NotConfigured/TokenExpired. The repository merge takes
+  the FRESH TokenStats even under keep-last-good (local logs succeed when HTTP fails).
+  `Data/Claude/ClaudeTokenLogReader.cs` tails `%USERPROFILE%\.claude\projects\*\*.jsonl` with
+  per-message-id dedupe (streaming rewrites repeat message ids; last wins).
+  `Data/Codex/CodexTokenLogReader.cs` tails `%CODEX_HOME%\sessions\yyyy\mm\dd\rollout-*.jsonl`
+  `token_count` events — ⚠️ `total_token_usage` is CUMULATIVE per session, so it DIFFS consecutive
+  events into timestamped deltas (never sums; rebaselines on a counter reset), and Codex's
+  `input_tokens` INCLUDES the cached subset, so fresh input = input − cached. Formatting:
+  `UiUsage.TokenSummary` ("56k in · 29k out · 2.2M cache read"; in = fresh input + cache WRITES — raw
   input_tokens is a misleading crumb under prompt caching) + `TokenDockTitle` ("24h 29k", output
   only — title budget). Two settings: ShowTokenStats (page row) and subordinate ShowTokenStatsInDock
-  (dock button; requires the first). Codex has the same data locally
-  (`%CODEX_HOME%\sessions\yyyy\mm\dd\rollout-*.jsonl`, `token_count` events — total_token_usage is
-  CUMULATIVE per session, take the last) — a future `CodexTokenLogReader` sibling lights up the row
-  and dock button automatically. Copilot has no local logs; stays null.
+  (dock button; requires the first). Copilot has no local logs; stays null.
 
 ## The Claude data source (Data/Claude/ — deliberately isolated)
 
