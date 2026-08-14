@@ -45,11 +45,10 @@ manifest description written, minimal capabilities, GitHub remote configured.
   Anthropic/OpenAI/GitHub, zero telemetry, Copilot PAT stored plaintext in settings JSON.
 - [x] **B6 [agent] LICENSE.** Add MIT (matching MarketExtension). Without it the public repo is
   all-rights-reserved by default.
-- [x] **B7 [agent] README fixes.** (demo-mode claim removed, build/deploy section fixed 2026-08-14; badges/screenshots deferred to post-approval) Remove the false "Demo mode" claim (line 24 — decided: not
-  implementing it); fix "Deploy the MSIX from Visual Studio" (line 52) vs the Rider reality. Later
-  (after Store approval): release/downloads badges, Store badge
-  (`https://apps.microsoft.com/detail/<store-id>`), winget one-liner, screenshots — copy
-  MarketExtension's README structure.
+- [x] **B7 [agent] README fixes.** (restructured to MarketExtension's README shape 2026-08-14:
+  badges, dock-strip hero, non-affiliation note, Installation, per-feature screenshot sections,
+  FAQ, MIT footer. Store badge + winget one-liner are stubbed in an HTML comment — after Store
+  approval, uncomment and fill in the `<STORE_ID>`.)
 - [x] **B8 [either] Store listing copy → `notes/store-listing.md`.** (drafted 2026-08-14 — user reviews before Partner Center paste) Short + full description,
   **non-affiliation paragraph** (not affiliated with/endorsed by Anthropic, OpenAI, GitHub, or
   Microsoft), disclose that the app requires third-party subscriptions/sign-ins (Store policy),
