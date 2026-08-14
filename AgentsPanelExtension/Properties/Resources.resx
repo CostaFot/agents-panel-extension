@@ -241,13 +241,13 @@ own API.</value>
     <value>Per-model weekly limits</value>
   </data>
   <data name="Settings_ShowModelWindows_Desc" xml:space="preserve">
-    <value>Show the per-model weekly limits (Opus, Sonnet) as their own rows</value>
+    <value>Show model-specific limits (e.g. Opus, Sonnet) as their own rows</value>
   </data>
   <data name="Settings_ShowExtraUsage_Label" xml:space="preserve">
     <value>Extra usage</value>
   </data>
   <data name="Settings_ShowExtraUsage_Desc" xml:space="preserve">
-    <value>Show the extra-usage credits balance when enabled on the account</value>
+    <value>Show pay-as-you-go extra usage when the account reports it</value>
   </data>
   <data name="Settings_CopilotToken_Label" xml:space="preserve">
     <value>Copilot GitHub token</value>

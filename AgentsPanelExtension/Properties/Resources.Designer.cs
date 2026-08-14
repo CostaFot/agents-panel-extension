@@ -473,7 +473,7 @@ namespace AgentsPanelExtension.Properties {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Show the extra-usage credits balance when enabled on the account.
+        ///   Looks up a localized string similar to Show pay-as-you-go extra usage when the account reports it.
         /// </summary>
         public static string Settings_ShowExtraUsage_Desc {
             get {
@@ -491,7 +491,7 @@ namespace AgentsPanelExtension.Properties {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Show the per-model weekly limits (Opus, Sonnet) as their own rows.
+        ///   Looks up a localized string similar to Show model-specific limits (e.g. Opus, Sonnet) as their own rows.
         /// </summary>
         public static string Settings_ShowModelWindows_Desc {
             get {

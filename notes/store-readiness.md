@@ -136,8 +136,10 @@ manifest description written, minimal capabilities, GitHub remote configured.
 - [x] **G25 [agent] Copilot PAT plaintext.** (decided 2026-08-14: **won't do** the setting-description
   note — user call. The privacy page (B5) already discloses the plaintext storage, which covers the
   formal side.)
-- [ ] **G26 [agent] Settings wording.** `showModelWindows`/`showExtraUsage` descriptions are
-  Claude-worded but filter every provider — reword.
+- [x] **G26 [agent] Settings wording.** (done 2026-08-14) Descriptions made provider-neutral:
+  "Show model-specific limits (e.g. Opus, Sonnet) as their own rows" / "Show pay-as-you-go extra
+  usage when the account reports it" (the old "credits balance" was wrong for Copilot's "n used"
+  row).
 - [ ] **G27 [agent] HttpClient timeout.** Verify `HttpRetry`'s 8s bail actually caps wall time;
   consider an explicit `Timeout` (default is 100s).
 - [ ] **G28 [agent] Delete dead `Assets/LockScreenLogo.scale-200.png`** (unreferenced VS template
