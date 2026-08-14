@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "AgentsPanelExtension (Package)": {
+      "commandName": "MsixPackage",
+      "doNotLaunchApp": true
+    },
+    "AgentsPanelExtension (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

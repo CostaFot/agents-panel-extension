@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Extension_DisplayName" xml:space="preserve">
+    <value>Agents Panel for Command Palette</value>
+  </data>
+  <data name="Command_AgentsPanel" xml:space="preserve">
+    <value>Agents Panel</value>
+  </data>
+  <data name="Page_Usage_Title" xml:space="preserve">
+    <value>Agents Panel</value>
+  </data>
+  <data name="Action_Refresh" xml:space="preserve">
+    <value>Refresh now</value>
+  </data>
+  <data name="Action_Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Action_Open" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="Page_Legal_Title" xml:space="preserve">
+    <value>The legal bit</value>
+  </data>
+  <data name="Window_Session_Long" xml:space="preserve">
+    <value>Session (5-hour)</value>
+  </data>
+  <data name="Window_Week_Long" xml:space="preserve">
+    <value>Weekly (all models)</value>
+  </data>
+  <data name="Window_Month_Long" xml:space="preserve">
+    <value>Monthly (30-day)</value>
+  </data>
+  <data name="Window_MonthQualified_Long" xml:space="preserve">
+    <value>Monthly — {0}</value>
+  </data>
+  <data name="Window_ModelWeek_Long" xml:space="preserve">
+    <value>Weekly — {0}</value>
+  </data>
+  <data name="Window_Extra_Long" xml:space="preserve">
+    <value>Extra usage</value>
+  </data>
+  <data name="Window_Session_Short" xml:space="preserve">
+    <value>5h</value>
+  </data>
+  <data name="Window_Week_Short" xml:space="preserve">
+    <value>Wk</value>
+  </data>
+  <data name="Window_Month_Short" xml:space="preserve">
+    <value>Mo</value>
+  </data>
+  <data name="Window_Extra_Short" xml:space="preserve">
+    <value>Extra</value>
+  </data>
+  <data name="Reset_At" xml:space="preserve">
+    <value>resets {0}</value>
+  </data>
+  <data name="Extra_UsedOfLimit" xml:space="preserve">
+    <value>{0} of {1} used</value>
+  </data>
+  <data name="Extra_Used" xml:space="preserve">
+    <value>{0} used</value>
+  </data>
+  <data name="Stale_AsOf" xml:space="preserve">
+    <value>stale — as of {0}</value>
+  </data>
+  <data name="Plan_Title" xml:space="preserve">
+    <value>Plan — {0}</value>
+  </data>
+  <data name="Usage_Empty_Title" xml:space="preserve">
+    <value>No usage data</value>
+  </data>
+  <data name="Usage_Empty_Subtitle" xml:space="preserve">
+    <value>The account reported no active limits</value>
+  </data>
+  <data name="Status_NotSignedIn_Title" xml:space="preserve">
+    <value>Sign in to {0}</value>
+  </data>
+  <data name="Status_NotSignedIn_Subtitle" xml:space="preserve">
+    <value>No local sign-in found — log in via the agent's own app</value>
+  </data>
+  <data name="Status_NotSignedIn_Tag" xml:space="preserve">
+    <value>Not signed in</value>
+  </data>
+  <data name="Status_TokenExpired_Title" xml:space="preserve">
+    <value>{0} sign-in expired</value>
+  </data>
+  <data name="Status_TokenExpired_Subtitle" xml:space="preserve">
+    <value>Just use the agent — its own app refreshes the sign-in</value>
+  </data>
+  <data name="Status_TokenExpired_Tag" xml:space="preserve">
+    <value>Expired</value>
+  </data>
+  <data name="Status_RateLimited_Title" xml:space="preserve">
+    <value>{0} is rate-limiting usage checks</value>
+  </data>
+  <data name="Status_RateLimited_Subtitle" xml:space="preserve">
+    <value>Showing the last known numbers — will retry automatically</value>
+  </data>
+  <data name="Status_RateLimited_Tag" xml:space="preserve">
+    <value>Rate-limited</value>
+  </data>
+  <data name="Status_Error_Title" xml:space="preserve">
+    <value>Can't reach {0}</value>
+  </data>
+  <data name="Status_Error_Subtitle" xml:space="preserve">
+    <value>Showing the last known numbers — check your connection</value>
+  </data>
+  <data name="Status_Error_Tag" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="Dock_SignIn_Title" xml:space="preserve">
+    <value>Sign in</value>
+  </data>
+  <data name="Dock_SignIn_Subtitle" xml:space="preserve">
+    <value>{0} login not found</value>
+  </data>
+  <data name="Dock_Expired_Title" xml:space="preserve">
+    <value>Token expired</value>
+  </data>
+  <data name="Dock_Expired_Subtitle" xml:space="preserve">
+    <value>Use {0} to refresh the sign-in</value>
+  </data>
+  <data name="Settings_Refresh_Label" xml:space="preserve">
+    <value>Refresh interval</value>
+  </data>
+  <data name="Settings_Refresh_Desc" xml:space="preserve">
+    <value>Usage refresh interval in minutes (minimum 3; 0 turns auto-refresh off)</value>
+  </data>
+  <data name="Settings_ShowModelWindows_Label" xml:space="preserve">
+    <value>Per-model weekly limits</value>
+  </data>
+  <data name="Settings_ShowModelWindows_Desc" xml:space="preserve">
+    <value>Show the per-model weekly limits (Opus, Sonnet) as their own rows</value>
+  </data>
+  <data name="Settings_ShowExtraUsage_Label" xml:space="preserve">
+    <value>Extra usage</value>
+  </data>
+  <data name="Settings_ShowExtraUsage_Desc" xml:space="preserve">
+    <value>Show the extra-usage credits balance when enabled on the account</value>
+  </data>
+  <data name="Settings_CopilotToken_Label" xml:space="preserve">
+    <value>Copilot GitHub token</value>
+  </data>
+  <data name="Settings_CopilotToken_Desc" xml:space="preserve">
+    <value>GitHub token for Copilot usage (optional — blank uses your gh CLI / Copilot sign-in)</value>
+  </data>
+</root>
