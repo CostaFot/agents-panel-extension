@@ -144,8 +144,11 @@ manifest description written, minimal capabilities, GitHub remote configured.
   `MaxDelay` only caps retry waits, NOT request wall time — the 100s HttpClient default applies per
   attempt. Accepted: MarketExtension ships the same default with no issues, the UI never blocks,
   and keep-last-good + stale text absorb a slow fetch. Trivial retrofit if ever reported.)
-- [ ] **G28 [agent] Delete dead `Assets/LockScreenLogo.scale-200.png`** (unreferenced VS template
-  leftover).
+- [x] **G28 [agent] Delete dead `Assets/LockScreenLogo.scale-200.png`** (resolved 2026-08-14:
+  **kept**, user decision — matching MarketExtension, which shipped the byte-identical file through
+  Store certification. For the record: it is not actually a valid PNG — its leading `0x89` was
+  text-mode-corrupted to `EF BF BD` somewhere in MarketExtension's early history — but nothing
+  references or parses it, so it rides along inert.)
 
 ---
 
