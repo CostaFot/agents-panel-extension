@@ -73,6 +73,10 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.CommandPalette.Extensions" />
+    <!-- Read-only access to opencode's local SQLite DB (Data/OpenCode/OpenCodeUsageReader.cs).
+         Brings the bundled e_sqlite3 native library; fine for this package shape (self-contained,
+         single-file, JIT, no trimming). -->
+    <PackageReference Include="Microsoft.Data.Sqlite" />
     <PackageReference Include="Microsoft.Windows.CsWinRT" />
     <PackageReference Include="Shmuelie.WinRTServer" />
     <PackageReference Include="System.Reactive" />

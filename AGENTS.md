@@ -7,7 +7,8 @@ A PowerToys **Command Palette** extension showing AI-agent **usage quotas** — 
 reset times, plan info — with pinnable per-provider **Dock bands** as the main selling point
 ("5h 23%" / "Wk 41%" quick-look buttons; one band per provider, so the user picks which agents to
 pin via the host's own band management). Covers **Claude** (Pro/Max subscription limits), **Codex**
-(ChatGPT subscription limits), and **Copilot** (GitHub Copilot quotas); the provider architecture is
+(ChatGPT subscription limits), **Copilot** (GitHub Copilot quotas), and **opencode** (local-data
+only — no usage API exists yet); the provider architecture is
 open for more later. .NET 9 / C# / MSIX,
 self-contained single-file JIT (trim/AOT deliberately OFF).
 
@@ -36,7 +37,8 @@ Single observable source of truth; every surface OBSERVES, none fetches:
   fallback routing: an unconfigured provider stays active and reports `NotConfigured` (rendered as a
   "Sign in" row/button) instead of disappearing — agent providers aren't interchangeable.
 - Registration order in `AgentsPanelCommandsProvider`: `ClaudeUsageProvider` → `CodexUsageProvider`
-  → `CopilotUsageProvider`, in the static `Providers` array (used twice: repository ctor + one dock
+  → `CopilotUsageProvider` → `OpenCodeUsageProvider`, in the static `Providers` array (used twice:
+  repository ctor + one dock
   band per entry). Add
   providers to that array, plus a PNG + case in `Helpers/ProviderIcons.cs` (ProviderId → icon;
   identifies dock buttons/hub rows — the terse dock titles carry no provider identity) — the hub row
@@ -66,9 +68,10 @@ Single observable source of truth; every surface OBSERVES, none fetches:
   too — don't re-fork the colors/strings).
 - **Token stats** (since 2026-08-15): `DomainTokenStats` rides `DomainUsageSnapshot.TokenStats`
   (nullable — absent means "provider has no local logs / read failed", a QUIET absence, never an
-  error surface). Both readers sum a **rolling 24h** window (deliberately not calendar-day: a
-  midnight reset zeroes the row mid-session), tail incrementally (per-file byte offset; only
-  newline-complete lines consumed; shrunken files reparsed from zero), and are attached AROUND the
+  error surface). All readers sum a **rolling 24h** window (deliberately not calendar-day: a
+  midnight reset zeroes the row mid-session); the Claude/Codex JSONL readers tail incrementally
+  (per-file byte offset; only
+  newline-complete lines consumed; shrunken files reparsed from zero), and all are attached AROUND the
   quota fetch so they ride every outcome incl. NotConfigured/TokenExpired. The repository merge takes
   the FRESH TokenStats even under keep-last-good (local logs succeed when HTTP fails).
   `Data/Claude/ClaudeTokenLogReader.cs` tails `%USERPROFILE%\.claude\projects\*\*.jsonl` with
@@ -82,7 +85,9 @@ Single observable source of truth; every surface OBSERVES, none fetches:
   ("24h 2.3M" / page-row tag — the TOTAL of all four counters, the ecosystem's glance number; any
   single component reads as noise at first sight). Two settings: ShowTokenStats (page row) and
   subordinate ShowTokenStatsInDock
-  (dock button; requires the first). Copilot has no local logs; stays null.
+  (dock button; requires the first). Copilot has no local logs; stays null. opencode's stats come
+  from its SQLite DB via `Data/OpenCode/OpenCodeUsageReader.cs` (stateless windowed query, not a
+  tail — see its section below).
 
 ## The Claude data source (Data/Claude/ — deliberately isolated)
 
@@ -156,6 +161,43 @@ segment, steipete/CodexBar, ericc-ch/copilot-api.
 - **Never log the token** (log only the source label); read at call time; NO token refresh — these
   are other apps' long-lived OAuth tokens. GitHub tokens are opaque (no JWT claims), so there's no
   local expiry check: a dead/rejected token surfaces as 401/403 ⇒ `TokenExpired`.
+
+## The opencode data source (Data/OpenCode/ — LOCAL-ONLY, no HTTP at all)
+
+The deliberate v1 shape, because **opencode has no balance/usage API**: `/zen/v1/balance` and
+`/zen/v1/usage` 404 (probed live 2026-08-15); upstream requests anomalyco/opencode **#10448** (Zen
+balance) + **#16017** (Go plan windows) both open. The only remote source is the opencode.ai
+dashboard's cookie-authenticated `_server?id=<build-hash>` RPC (what steipete/CodexBar scrapes on
+macOS) — **rejected**: Windows browser-cookie decryption is invasive, and the function ids are
+frontend-build hashes that churn every deploy. When the balance endpoint ships, the HTTP fetch
+drops into `OpenCodeUsageProvider` as the quota path (auth.json API key, read at call time, never
+logged, no refresh) — same seam as the other providers.
+
+- Everything comes from opencode's local data dir (xdg-style even on Windows:
+  `XDG_DATA_HOME` ?? `%USERPROFILE%\.local\share`, + `\opencode`):
+  - `auth.json` (`OpenCodeCredentialsReader`) — a map `providerID → {type: api|oauth|wellknown, …}`;
+    an `"opencode"` entry (Zen login = `type: "api"`) is the ONLY thing checked, purely for the
+    NotConfigured/Ok pivot. **v1 never extracts the key** — there's nothing to spend it on.
+  - `opencode.db` (`OpenCodeUsageReader`, Microsoft.Data.Sqlite) — WAL-mode SQLite. The `message`
+    table's assistant rows carry `data` JSON with `providerID`/`cost` (USD)/`tokens{input, output,
+    reasoning, cache{read,write}}` and `time_created` in epoch **milliseconds** (verified live
+    2026-08). One windowed query per poll (stateless — no tailing), `json_extract` in SQL so message
+    CONTENT never leaves the database. ⚠️ The `session` table's counters are cumulative-per-session —
+    can't be time-windowed; don't "simplify" to them.
+- Reports: one `ExtraUsage` window = rolling-24h **gateway spend** (`Σ cost WHERE providerID =
+  'opencode'` — Zen credits / Go balance-fallback, the money that actually leaves the account;
+  Go-subscription-covered messages record cost 0 locally so the sum stays honest) with
+  `Qualifier "24h"` + `Unit "USD"` (renders "$0.13 used" / dock "24h $0.13" — `Unit` is what
+  separates verified dollars from Copilot's unit-unknown bare "n used"), plus TokenStats over ALL
+  opencode messages (reasoning folds into output). No HTTP ⇒ status is only ever
+  NotConfigured (no auth.json entry) or Ok; a failed DB read degrades to an empty-Ok snapshot
+  (quiet absence).
+- SQLite read strategy: `Mode=ReadOnly; Pooling=False` (no handle survives the poll),
+  `CommandTimeout=2` (= busy timeout). Read-only WAL access works mid-session (live `-shm`) and
+  after clean exit; the crash-orphaned-wal edge falls back to copying db+wal+shm to temp and
+  querying the copy. Any failure → null this poll, retried next.
+- DisplayName/Id are `opencode` (lowercase brand; names the AGENT, not a billing product — Go and
+  Zen are billing modes of the same account, so a "Zen" row would age badly).
 
 ## Build & Deploy
 

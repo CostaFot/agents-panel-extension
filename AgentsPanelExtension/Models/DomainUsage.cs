@@ -27,7 +27,9 @@ internal sealed record DomainUsageWindow(
     DateTimeOffset? ResetsAt,      // null when the window has no reset (ExtraUsage)
     string? Qualifier = null,      // e.g. "Opus" for a per-model weekly window
     decimal? Used = null,          // ExtraUsage: used_credits
-    decimal? Limit = null);        // ExtraUsage: monthly_limit
+    decimal? Limit = null,         // ExtraUsage: monthly_limit
+    string? Unit = null);          // ExtraUsage: "USD" when Used is verified dollars (opencode
+                                   // spend); null = unverified units (Copilot credits) → bare number
 
 // Why a snapshot has no usable windows — or, after a keep-last-good merge, the degradation flag
 // riding on an old-but-good one.

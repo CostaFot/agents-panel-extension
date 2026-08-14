@@ -97,6 +97,9 @@
   <data name="Window_Extra_Long" xml:space="preserve">
     <value>Extra usage</value>
   </data>
+  <data name="Window_ExtraQualified_Long" xml:space="preserve">
+    <value>Extra usage ({0})</value>
+  </data>
   <data name="Window_Session_Short" xml:space="preserve">
     <value>5h</value>
   </data>

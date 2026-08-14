@@ -95,7 +95,7 @@ internal sealed partial class UsageProviderPage : ListPage, INotifyItemsChanged
                 Title = window.LongLabel,
                 Subtitle = stale ?? window.FormatReset(now),
                 Icon = new IconInfo(WindowGlyph(window.Window.Kind)),
-                Tags = [new Tag(window.FormatPercent()) { Foreground = window.SeverityColor() }],
+                Tags = [new Tag(window.TagText()) { Foreground = window.SeverityColor() }],
             });
         }
 

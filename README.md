@@ -14,6 +14,7 @@ A Windows 11 [Command Palette](https://learn.microsoft.com/en-us/windows/powerto
 - Claude Code signed in with a Pro/Max account
 - Codex CLI or desktop app signed in
 - A local GitHub Copilot sign-in, or a fine-grained PAT with *Copilot Requests: Read*
+- opencode signed in (Zen or Go)
 
 ## Installation
 
@@ -52,6 +53,10 @@ One top-level **Agents Panel** command opens the hub.
 ### Copilot
 
 <img src="listing/screenshot_copilot_hub.png" width="500"/>
+
+### opencode
+
+TODO !
 
 ### Dock integration
 

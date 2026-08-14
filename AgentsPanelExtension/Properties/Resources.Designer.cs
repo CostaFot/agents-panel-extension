@@ -383,6 +383,15 @@ namespace AgentsPanelExtension.Properties {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Extra usage ({0}).
+        /// </summary>
+        public static string Window_ExtraQualified_Long {
+            get {
+                return ResourceManager.GetString("Window_ExtraQualified_Long", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Weekly — {0}.
         /// </summary>
         public static string Window_ModelWeek_Long {

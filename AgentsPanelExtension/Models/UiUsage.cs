@@ -27,7 +27,8 @@ internal sealed record UiUsageWindow(DomainUsageWindow Window)
         // "Code") the same way ModelWeek's does; unqualified stays plain "Mo".
         UsageWindowKind.Month => Window.Qualifier ?? Resources.Window_Month_Short,
         UsageWindowKind.ModelWeek => Window.Qualifier ?? Resources.Window_Week_Short,
-        UsageWindowKind.ExtraUsage => Resources.Window_Extra_Short,
+        // ExtraUsage honors Qualifier the same way ("24h" for opencode's rolling spend window).
+        UsageWindowKind.ExtraUsage => Window.Qualifier ?? Resources.Window_Extra_Short,
         _ => Window.Id,
     };
 
@@ -40,7 +41,9 @@ internal sealed record UiUsageWindow(DomainUsageWindow Window)
             ? Strings.Format(Resources.Window_MonthQualified_Long, qualifier)
             : Resources.Window_Month_Long,
         UsageWindowKind.ModelWeek => Strings.Format(Resources.Window_ModelWeek_Long, Window.Qualifier ?? "?"),
-        UsageWindowKind.ExtraUsage => Resources.Window_Extra_Long,
+        UsageWindowKind.ExtraUsage => Window.Qualifier is { } extraQualifier
+            ? Strings.Format(Resources.Window_ExtraQualified_Long, extraQualifier)
+            : Resources.Window_Extra_Long,
         _ => Window.Id,
     };
 
@@ -48,9 +51,17 @@ internal sealed record UiUsageWindow(DomainUsageWindow Window)
     public string FormatPercent() =>
         string.Create(CultureInfo.InvariantCulture, $"{(int)Math.Round(Window.Utilization)}%");
 
-    // The dock button title, e.g. "5h 23%" / "Wk 41%" / "Opus 67%" — must stay within the host's
-    // ~15-char button budget (longer titles get ellipsized, not scrolled).
-    public string DockTitle() => $"{ShortLabel} {FormatPercent()}";
+    // The pill/tag figure: percent for quota windows, but a dollar-denominated ExtraUsage window
+    // shows its amount ("$0.12") — its utilization is a placeholder 0, and a green "0%" would read
+    // as a healthy quota. (Copilot's unit-unknown credits row keeps the percent form.)
+    public string TagText() =>
+        Window is { Kind: UsageWindowKind.ExtraUsage, Used: { } used, Unit: "USD" }
+            ? FormatDollars(used)
+            : FormatPercent();
+
+    // The dock button title, e.g. "5h 23%" / "Wk 41%" / "Opus 67%" / "24h $0.12" — must stay within
+    // the host's ~15-char button budget (longer titles get ellipsized, not scrolled).
+    public string DockTitle() => $"{ShortLabel} {TagText()}";
 
     // The secondary line: when the window resets — "resets 17:30" today, "resets Thu 09:00" further
     // out — or, for the credits window, "$6.00 of $50.00 used". Empty when there's nothing to say.
@@ -58,12 +69,15 @@ internal sealed record UiUsageWindow(DomainUsageWindow Window)
     {
         if (Window.Kind == UsageWindowKind.ExtraUsage)
         {
-            // Both bounds → "$x of $y" (Claude credits, verified USD). Used only → a bare "n used"
-            // (Copilot AI credits: the cap isn't reported and the unit is unverified, so no $).
+            // Both bounds → "$x of $y" (Claude credits, verified USD). Used only: "$x used" when the
+            // unit is verified USD (opencode spend), else a bare "n used" (Copilot AI credits: the
+            // cap isn't reported and the unit is unverified, so no $).
             return Window switch
             {
                 { Used: { } used, Limit: { } limit } =>
                     Strings.Format(Resources.Extra_UsedOfLimit, FormatDollars(used), FormatDollars(limit)),
+                { Used: { } used, Unit: "USD" } =>
+                    Strings.Format(Resources.Extra_Used, FormatDollars(used)),
                 { Used: { } used } =>
                     Strings.Format(Resources.Extra_Used, used.ToString("0.##", CultureInfo.InvariantCulture)),
                 _ => string.Empty,
