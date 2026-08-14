@@ -2,7 +2,7 @@
 
 Skeleton — modeled on MarketExtension's `notes/releasing.md`; fill in as the release
 infrastructure lands (see `notes/store-readiness.md` for the full checklist). Current version:
-**1.0.0.0**.
+**1.1.0.0**.
 
 ## Version bump — all sites together, one dedicated commit
 

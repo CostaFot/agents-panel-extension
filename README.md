@@ -56,7 +56,7 @@ One top-level **Agents Panel** command opens the hub.
 
 ### opencode
 
-TODO !
+<img src="listing/screenshot_opencode_hub.png" width="500"/>
 
 ### Dock integration
 

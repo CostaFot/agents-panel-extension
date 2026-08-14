@@ -12,7 +12,7 @@
 
     <AppxPackageIdentityName>CostaFotiadis.AgentsPanelforCommandPalette</AppxPackageIdentityName>
     <AppxPackagePublisher>CN=3D57AA92-97A9-42D2-8CB0-4207D9145514</AppxPackagePublisher>
-    <AppxPackageVersion>1.0.0.0</AppxPackageVersion>
+    <AppxPackageVersion>1.1.0.0</AppxPackageVersion>
     <!-- Assembly version mirrors the package version so Helpers/AppInfo.cs can derive the HTTP
          User-Agent from the assembly — bump AppxPackageVersion and this follows. -->
     <Version>$(AppxPackageVersion)</Version>
