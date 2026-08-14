@@ -127,7 +127,12 @@ manifest description written, minimal capabilities, GitHub remote configured.
   `.msixbundle` from the GitHub Release → Partner Center → new submission → upload → listing copy
   (B8) + screenshots (E21) + privacy URL (B5) + certification notes (B9) → submit. `runFullTrust`
   needs its standard justification (CmdPal COM extension-host requirement).
-- [ ] **F23 [user] WinGet.** After Store approval only. Package ID
+- [ ] **F23 [user] WinGet.** (submitted 2026-08-14 — microsoft/winget-pkgs **PR #417585**, manifests
+  hand-written from Markets' merged 1.2.0.0 set in the `C:\Users\jarla\code\winget-pkgs` fork,
+  branch `CostaFotiadis.AgentsPanelForCommandPalette-1.0.0.0`; `winget validate` passed. Points at
+  the Store-signed bundle on Release v1.0.0.0 (issuer verified: Microsoft Marketplace CA G 022;
+  SignatureSha256 from the bundle's AppxSignature.p7x). After merge: uncomment the README WinGet
+  snippet + copy `update-winget.yml` for repeat submissions.) After Store approval only. Package ID
   `CostaFotiadis.AgentsPanelForCommandPalette` (28 chars — fits the 32-char/segment limit, no
   shortening needed unlike Markets). Must point at the **Store-signed** bundle downloaded from
   Partner Center and re-uploaded to the GitHub Release — the self-signed CI bundle fails WinGet's
