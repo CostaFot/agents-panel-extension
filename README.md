@@ -12,7 +12,7 @@ A Windows 11 [Command Palette](https://learn.microsoft.com/en-us/windows/powerto
 ## Requirements
 
 - [PowerToys](https://github.com/microsoft/PowerToys) with Command Palette enabled
-- For live Claude data: [Claude Code](https://claude.com/claude-code) signed in with a Pro/Max account
+- For live Claude data: Claude Code signed in with a Pro/Max account
 - For live Codex data: the Codex CLI or desktop app signed in with a ChatGPT account
 - For live Copilot data: a local GitHub Copilot sign-in, or a fine-grained PAT with *Copilot Requests: Read*
 
