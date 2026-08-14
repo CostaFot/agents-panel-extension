@@ -82,11 +82,11 @@ manifest description written, minimal capabilities, GitHub remote configured.
 
 ## D. Versioning & build hygiene
 
-- [ ] **D14 [agent] Version/UA consolidation.** Six version sites today: csproj
-  `AppxPackageVersion`, `Package.appxmanifest`, `app.manifest`, and three hand-duplicated
-  `UserAgent` constants (Claude/Codex/Copilot providers — each falsely claims "one place to
-  bump"). Consolidate the UA into one shared constant, then keep `notes/releasing.md`'s bump table
-  as the single documented list.
+- [x] **D14 [agent] Version/UA consolidation.** (done 2026-08-14) UA now assembly-derived in
+  `Helpers/AppInfo.cs` (csproj `<Version>` mirrors `<AppxPackageVersion>`); the three per-provider
+  constants deleted. Bump sites down to three manifest files — `notes/releasing.md` table updated
+  and verified (built dll carries 0.1.0.0 → UA "agents-panel/0.1.0", byte-identical to the old
+  literal).
 - [ ] **D15 [agent] csproj/sln cleanup.** Remove the dead x86 sln configurations (pipeline trap:
   ARM64 is picked alphabetically without `-p:Platform`). Optional: preview pins
   (`WindowsSdkPackageVersion 10.0.26100.68-preview`, NetAnalyzers preview — MarketExtension

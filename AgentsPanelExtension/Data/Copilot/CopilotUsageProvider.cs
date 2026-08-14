@@ -30,9 +30,8 @@ internal sealed class CopilotUsageProvider : IAgentUsageProvider
 
     private const string UsageEndpoint = "https://api.github.com/copilot_internal/user";
 
-    // Honest self-identification (deliberate decision: no client spoofing — no Editor-Version
-    // masquerade either; the endpoint answers plain user agents). One place to bump.
-    private const string UserAgent = "agents-panel/0.1.0";
+    // Deliberate decision for this endpoint: no Editor-Version masquerade either — it answers
+    // plain user agents (AppInfo.UserAgent).
 
     // One client for the process. Headers that never change ride on it; Authorization is
     // per-request because the token is re-discovered on every fetch.
@@ -112,7 +111,7 @@ internal sealed class CopilotUsageProvider : IAgentUsageProvider
     private static HttpClient CreateClient()
     {
         var client = new HttpClient();
-        client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", UserAgent);
+        client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", AppInfo.UserAgent);
         client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         return client;
     }

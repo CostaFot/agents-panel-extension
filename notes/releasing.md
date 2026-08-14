@@ -6,20 +6,18 @@ infrastructure lands (see `notes/store-readiness.md` for the full checklist). Cu
 
 ## Version bump — all sites together, one dedicated commit
 
-Six sites today (D14 in the checklist will consolidate the three UserAgent constants into one,
-shrinking this table):
+Three sites (D14 done 2026-08-14: the HTTP `User-Agent` is derived at runtime from the assembly
+version — csproj `<Version>` mirrors `<AppxPackageVersion>`, see `Helpers/AppInfo.cs` — so no code
+files carry a version literal anymore):
 
 | File | Field |
 |---|---|
-| `AgentsPanelExtension/AgentsPanelExtension.csproj` | `<AppxPackageVersion>` |
+| `AgentsPanelExtension/AgentsPanelExtension.csproj` | `<AppxPackageVersion>` (`<Version>` follows it automatically) |
 | `AgentsPanelExtension/Package.appxmanifest` | `Identity Version=` |
 | `AgentsPanelExtension/app.manifest` | `assemblyIdentity version=` |
-| `AgentsPanelExtension/Data/Claude/ClaudeUsageProvider.cs` | `UserAgent` (`agents-panel/<ver>`, 3-part) |
-| `AgentsPanelExtension/Data/Codex/CodexUsageProvider.cs` | `UserAgent` |
-| `AgentsPanelExtension/Data/Copilot/CopilotUsageProvider.cs` | `UserAgent` |
 
-MSIX wants 4-part `Major.Minor.Build.Revision`; the UA strings carry the 3-part form. Bump
-one-liner (adjust the UA separately — different format):
+MSIX wants 4-part `Major.Minor.Build.Revision`; the UA renders the 3-part form of the same number
+(`agents-panel/0.1.0`) on its own. Bump one-liner:
 
 ```powershell
 $files = @("AgentsPanelExtension/AgentsPanelExtension.csproj",
