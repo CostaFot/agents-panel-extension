@@ -126,20 +126,11 @@ internal sealed class CopilotUsageProvider : IAgentUsageProvider
         var windows = new List<DomainUsageWindow>(3);
         var resetsAt = ParseResetDate(dto.QuotaResetDateUtc) ?? ParseResetDate(dto.QuotaResetDate);
 
-        // Token-based billing means NO metered buckets, whatever the snapshot/legacy fields claim —
-        // skip them entirely and publish plan info only (plus the absolute credits counter when
-        // present), never usage fabricated from placeholder snapshots. Possibly zero windows: the
-        // hub row then falls back to status text, which is the honest rendering.
-        if (dto.TokenBasedBilling == true)
-        {
-            if (dto.CreditsUsed is { } tokenBillingCredits)
-            {
-                windows.Add(new DomainUsageWindow(
-                    "credits", UsageWindowKind.ExtraUsage, 0, resetsAt, Qualifier: null,
-                    Used: tokenBillingCredits, Limit: null));
-            }
-            return windows;
-        }
+        // ⚠️ Do NOT branch on the top-level token_based_billing flag: verified live 2026-08-18 on
+        // this Free/individual seat that it reads TRUE while chat/completions snapshots are fully
+        // metered (real entitlement/remaining/percent). It marks the billing generation, not
+        // "nothing is metered" — a short-circuit on it blanked real windows. The per-snapshot gate
+        // in AddSnapshot is the ONLY reliable metered/not-metered signal.
 
         // Current generations report every metered bucket through quota_snapshots regardless of
         // plan (verified live 2026-08 on a Free sku: chat + completions metered, premium zeroed).

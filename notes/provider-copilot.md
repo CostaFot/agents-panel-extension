@@ -15,10 +15,18 @@ AI-credit billing already reshaped the response once). Reference implementations
 
 **Varies BY PLAN and by billing generation** — `MapWindows` branches, in order:
 
-0. Top-level `token_based_billing: true` (2026-08, ported from CodexBar) short-circuits
-   EVERYTHING: nothing in `quota_snapshots` is a usable meter on such seats, whatever its fields
-   claim, so the snapshot is plan-only (possibly zero windows — the hub row falls back to status
-   text) plus the `credits_used` ExtraUsage row when present.
+⚠️ **Do NOT branch on the top-level `token_based_billing` flag** (won't-do, learned the hard way
+2026-08-18): a "true ⇒ no metered buckets" short-circuit was shipped and immediately blanked real
+windows — verified live on this machine's Free/individual seat, which reports
+`token_based_billing: true` at top level AND per snapshot while chat (193.8/200) and completions
+(2000/2000) are fully metered. The flag marks the post-AI-credits billing *generation*, not "not
+metered"; the per-snapshot gate below is the only reliable meter signal. The field is deliberately
+not declared in the DTO. (Per-snapshot `credits_used` counters also exist in this generation —
+unrendered for now.) NB the bug was in OUR port, not CodexBar: their `CopilotUsageFetcher.swift`
+consults the flag only as an else-if AFTER snapshot mapping yields zero windows, purely to tell
+"legitimately unmetered → plan-only" from "unrecognized response → error" — a distinction our
+model doesn't need (all-snapshots-dropped already renders honestly as Ok with empty windows).
+
 1. `quota_snapshots` (all current plans; verified live 2026-08 on Free: chat 200 + completions
    2000 metered, premium_interactions zeroed) — skip buckets with `unlimited`, `has_quota=false`,
    or `entitlement<=0` (**a zeroed bucket's `percent_remaining: 0` is "not metered", NOT "100%
