@@ -20,6 +20,9 @@ namespace AgentsPanelExtension;
 internal sealed record ApiCopilotUserDto(
     [property: JsonPropertyName("copilot_plan")] string? CopilotPlan,
     [property: JsonPropertyName("access_type_sku")] string? AccessTypeSku,
+    // Credit-billed seat marker: when true, NOTHING in quota_snapshots is a usable meter (whatever
+    // its fields claim) — the provider publishes a plan-only snapshot plus credits_used if present.
+    [property: JsonPropertyName("token_based_billing")] bool? TokenBasedBilling,
     [property: JsonPropertyName("quota_snapshots")] ApiCopilotQuotaSnapshotsDto? QuotaSnapshots,
     [property: JsonPropertyName("quota_reset_date")] string? QuotaResetDate,          // "2026-09-01"
     [property: JsonPropertyName("quota_reset_date_utc")] string? QuotaResetDateUtc,   // full ISO timestamp

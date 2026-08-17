@@ -10,6 +10,14 @@ honest UA. Same ⚠️ **undocumented, ToS-gray** tier as the Claude endpoint (p
 values have all churned across 2025–2026). Reference implementations: openai/codex
 `codex-rs/backend-client` + steipete/CodexBar.
 
+**Base-URL override** (since 2026-08, ported from CodexBar): `CodexConfigReader` reads
+`chatgpt_base_url` from `%CODEX_HOME%\config.toml` at call time — self-hosted/enterprise Codex
+points its backend elsewhere and would otherwise silently 404. Path rule: a base containing
+`/backend-api` serves `/wham/usage`; any other base serves the same data at `/api/codex/usage`.
+Parse is deliberately naive (no TOML lib): only a top-level `chatgpt_base_url = "..."` line before
+the first `[table]` header counts (a same-named key inside `[model_providers.*]` must NOT win);
+anything missing/invalid → default base. Only the override's HOST is logged, never the full URL.
+
 ## Response shape
 
 - **Window shape varies BY PLAN** (why `UsageWindowKind` picks from `limit_window_seconds`, never
@@ -18,6 +26,16 @@ values have all churned across 2025–2026). Reference implementations: openai/c
   on Go.
 - Reset time: `reset_at` (epoch seconds) when present, else `now + reset_after_seconds` — both
   generations exist in the wild.
+- **Weekly caps session** (2026-08, ported from CodexBar): when the weekly window is at 100% with a
+  FUTURE reset, the session window is forced to 100% at map time — the session lane keeps reporting
+  headroom the server won't actually honor until the weekly reset. Reset times stay real on both
+  rows; a null/past weekly reset leaves the session alone (stale/ambiguous data). Recomputed from
+  live numbers every fresh Ok poll, so it un-forces itself after the reset.
+- **`additional_rate_limits[]` decodes lossily** (2026-08): the DTO holds raw `JsonElement`s and
+  the provider deserializes each element separately (skip-and-log on mismatch) so one malformed
+  entry can't fail the whole response or its siblings. ⚠️ This makes
+  `ApiCodexAdditionalRateLimitDto` unreachable from the root DTO — it has its own
+  `[JsonSerializable]` entry, which must stay on the SINGLE partial `CodexJsonContext` declaration.
 
 ## Credentials
 

@@ -126,6 +126,21 @@ internal sealed class CopilotUsageProvider : IAgentUsageProvider
         var windows = new List<DomainUsageWindow>(3);
         var resetsAt = ParseResetDate(dto.QuotaResetDateUtc) ?? ParseResetDate(dto.QuotaResetDate);
 
+        // Token-based billing means NO metered buckets, whatever the snapshot/legacy fields claim —
+        // skip them entirely and publish plan info only (plus the absolute credits counter when
+        // present), never usage fabricated from placeholder snapshots. Possibly zero windows: the
+        // hub row then falls back to status text, which is the honest rendering.
+        if (dto.TokenBasedBilling == true)
+        {
+            if (dto.CreditsUsed is { } tokenBillingCredits)
+            {
+                windows.Add(new DomainUsageWindow(
+                    "credits", UsageWindowKind.ExtraUsage, 0, resetsAt, Qualifier: null,
+                    Used: tokenBillingCredits, Limit: null));
+            }
+            return windows;
+        }
+
         // Current generations report every metered bucket through quota_snapshots regardless of
         // plan (verified live 2026-08 on a Free sku: chat + completions metered, premium zeroed).
         AddSnapshot(windows, dto.QuotaSnapshots?.PremiumInteractions, "premium_interactions", qualifier: null, resetsAt);
@@ -159,7 +174,10 @@ internal sealed class CopilotUsageProvider : IAgentUsageProvider
     {
         // unlimited / has_quota=false / entitlement 0 all mean "not metered", and their
         // percent_remaining of 0 must NOT render as a 100%-used window (free plans zero out
-        // premium_interactions this way; credit-billed seats zero out all three).
+        // premium_interactions this way; credit-billed seats zero out all three). Some
+        // token-billing/Business seats report the INVERSE placeholder — entitlement 0 with
+        // percent_remaining 100 and a real quota_id — which would render a misleading "0% used";
+        // the entitlement gate below drops it before percent_remaining is ever read.
         if (dto is null || dto.Unlimited == true || dto.HasQuota == false)
             return;
         var entitlement = dto.Entitlement ?? 0;

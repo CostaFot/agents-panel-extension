@@ -30,17 +30,20 @@ internal static class CodexCredentialsReader
     }
 
     // Codex honors CODEX_HOME as the config root; default ~/.codex (same probe pattern as Claude's
-    // ~/.claude). Read per call so an env change applies without a reload.
-    private static string CredentialsPath
+    // ~/.claude). Read per call so an env change applies without a reload. Shared with
+    // CodexConfigReader — config.toml lives beside auth.json.
+    internal static string HomeDirectory
     {
         get
         {
             var home = Environment.GetEnvironmentVariable("CODEX_HOME");
             if (string.IsNullOrWhiteSpace(home))
                 home = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".codex");
-            return Path.Combine(home, "auth.json");
+            return home;
         }
     }
+
+    private static string CredentialsPath => Path.Combine(HomeDirectory, "auth.json");
 
     public static CodexCredentials? Read()
     {

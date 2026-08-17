@@ -15,10 +15,20 @@ AI-credit billing already reshaped the response once). Reference implementations
 
 **Varies BY PLAN and by billing generation** — `MapWindows` branches, in order:
 
+0. Top-level `token_based_billing: true` (2026-08, ported from CodexBar) short-circuits
+   EVERYTHING: nothing in `quota_snapshots` is a usable meter on such seats, whatever its fields
+   claim, so the snapshot is plan-only (possibly zero windows — the hub row falls back to status
+   text) plus the `credits_used` ExtraUsage row when present.
 1. `quota_snapshots` (all current plans; verified live 2026-08 on Free: chat 200 + completions
    2000 metered, premium_interactions zeroed) — skip buckets with `unlimited`, `has_quota=false`,
    or `entitlement<=0` (**a zeroed bucket's `percent_remaining: 0` is "not metered", NOT "100%
-   used"**; credit-billed seats zero out all three — CodexBar#1258).
+   used"**; credit-billed seats zero out all three — CodexBar#1258). Some token-billing/Business
+   seats report the INVERSE placeholder — `entitlement: 0` with `percent_remaining: 100` and a
+   real `quota_id` — which would render a misleading "0% used"; the `entitlement<=0` gate drops it
+   before `percent_remaining` is ever read (a strict superset of CodexBar's placeholder test, so
+   no `quota_id` field is needed). When `percent_remaining` is absent, used% derives from
+   `remaining`/`entitlement`; when neither is derivable the bucket is OMITTED, never fabricated
+   as 0.
 2. Legacy free-tier `limited_user_quotas`/`monthly_quotas` maps.
 3. Top-level `credits_used` → an ExtraUsage "n used" row (cap/units unreported — no fabricated
    percentage).

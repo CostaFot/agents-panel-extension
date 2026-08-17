@@ -26,9 +26,11 @@ internal sealed class CodexUsageProvider : IAgentUsageProvider
 {
     private const string Tag = "Codex";
 
-    // ChatGPT-auth path style ("wham" is the Codex backend's internal name); the {base}/api/codex/*
-    // style is for API-key auth, which this provider doesn't use.
-    private const string UsageEndpoint = "https://chatgpt.com/backend-api/wham/usage";
+    // Default backend base; overridable via config.toml's chatgpt_base_url (CodexConfigReader) for
+    // self-hosted/enterprise deployments. Path rule mirrors CodexBar: a base containing
+    // "/backend-api" (ChatGPT-auth style — "wham" is the Codex backend's internal name) serves
+    // /wham/usage, any other base serves the same data at /api/codex/usage.
+    private const string DefaultBaseUrl = "https://chatgpt.com/backend-api";
 
     // One client for the process. Headers that never change ride on it; the Authorization and
     // account-id headers are per-request because credentials are re-read from disk on every fetch.
@@ -70,12 +72,18 @@ internal sealed class CodexUsageProvider : IAgentUsageProvider
 
         try
         {
+            // Endpoint resolved per fetch (config read at call time, like the credentials).
+            var baseUrl = (CodexConfigReader.ReadChatGptBaseUrl() ?? DefaultBaseUrl).TrimEnd('/');
+            var endpoint = baseUrl + (baseUrl.Contains("/backend-api", StringComparison.OrdinalIgnoreCase)
+                ? "/wham/usage"
+                : "/api/codex/usage");
+
             // Thunk builds a FRESH request per attempt (HttpRequestMessage is single-use).
             // NEVER log the request headers — the Authorization header carries the token.
             using var response = await HttpRetry.SendAsync(
                 c =>
                 {
-                    var request = new HttpRequestMessage(HttpMethod.Get, UsageEndpoint);
+                    var request = new HttpRequestMessage(HttpMethod.Get, endpoint);
                     request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", credentials.AccessToken);
                     // Disambiguates accounts that belong to multiple ChatGPT workspaces; the CLI
                     // sends it whenever it knows the id.
@@ -143,12 +151,40 @@ internal sealed class CodexUsageProvider : IAgentUsageProvider
         AddWindow(windows, dto.RateLimit?.PrimaryWindow, "primary", now, fallbackKind: UsageWindowKind.Session);
         AddWindow(windows, dto.RateLimit?.SecondaryWindow, "secondary", now, fallbackKind: UsageWindowKind.Week);
 
+        // Weekly window exhausted (and not yet reset) ⇒ the session lane's remaining headroom is
+        // unusable until the weekly reset, even though the server keeps reporting it — mirror the
+        // effective cap instead of advertising headroom that can't be spent. Reset times stay real
+        // on both rows; a null/past weekly reset leaves the session alone (stale/ambiguous data).
+        var weeklyIdx = windows.FindIndex(w => w.Kind == UsageWindowKind.Week);
+        var sessionIdx = windows.FindIndex(w => w.Kind == UsageWindowKind.Session);
+        if (weeklyIdx >= 0 && sessionIdx >= 0
+            && windows[weeklyIdx] is { Utilization: >= 100, ResetsAt: { } weeklyReset } && weeklyReset > now
+            && windows[sessionIdx].Utilization < 100)
+        {
+            Log.Info(Tag, "weekly window exhausted — capping session window at 100%");
+            windows[sessionIdx] = windows[sessionIdx] with { Utilization = 100 };
+        }
+
         // Model/feature-scoped extras render like Claude's per-model weekly windows: qualified rows
         // hidden behind the ShowModelWindows toggle. Null on the plans observed so far — defensive.
+        // Elements decode ONE AT A TIME so a malformed entry skips (with a log) instead of failing
+        // the whole response or its siblings.
         if (dto.AdditionalRateLimits is { } extras)
         {
-            foreach (var extra in extras)
+            foreach (var element in extras)
             {
+                ApiCodexAdditionalRateLimitDto? extra;
+                try
+                {
+                    extra = JsonSerializer.Deserialize(
+                        element, CodexJsonContext.Default.ApiCodexAdditionalRateLimitDto);
+                }
+                catch (JsonException)
+                {
+                    Log.Warn(Tag, "skipping malformed additional_rate_limits element");
+                    continue;
+                }
+
                 var name = extra?.LimitName;
                 var window = extra?.RateLimit?.PrimaryWindow;
                 if (window is null)

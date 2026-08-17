@@ -15,7 +15,10 @@ namespace AgentsPanelExtension;
 internal sealed record ApiCodexUsageDto(
     [property: JsonPropertyName("plan_type")] string? PlanType,
     [property: JsonPropertyName("rate_limit")] ApiCodexRateLimitDto? RateLimit,
-    [property: JsonPropertyName("additional_rate_limits")] System.Collections.Generic.IReadOnlyList<ApiCodexAdditionalRateLimitDto>? AdditionalRateLimits);
+    // Deliberately raw elements: one malformed entry must not fail the whole response deserialize,
+    // so the provider deserializes each element to ApiCodexAdditionalRateLimitDto separately
+    // (skip-and-log on mismatch).
+    [property: JsonPropertyName("additional_rate_limits")] System.Collections.Generic.IReadOnlyList<System.Text.Json.JsonElement>? AdditionalRateLimits);
 
 internal sealed record ApiCodexRateLimitDto(
     [property: JsonPropertyName("primary_window")] ApiCodexWindowDto? PrimaryWindow,
@@ -28,6 +31,8 @@ internal sealed record ApiCodexWindowDto(
     [property: JsonPropertyName("reset_at")] long? ResetAt); // epoch seconds
 
 // Model/feature-scoped extra limits (e.g. a per-model cap). Same window shape one level down.
+// Deserialized PER ELEMENT from the JsonElement list above — not reachable from the root DTO, so
+// it needs its own [JsonSerializable] entry on the context below.
 internal sealed record ApiCodexAdditionalRateLimitDto(
     [property: JsonPropertyName("limit_name")] string? LimitName,
     [property: JsonPropertyName("rate_limit")] ApiCodexRateLimitDto? RateLimit);
@@ -85,6 +90,7 @@ internal sealed record ApiCodexTokenUsageDto(
 // Splitting them across multiple partials silently breaks the source generator for the whole build
 // (every context type comes back null at runtime) — MarketExtension hit exactly this.
 [JsonSerializable(typeof(ApiCodexUsageDto))]
+[JsonSerializable(typeof(ApiCodexAdditionalRateLimitDto))] // per-element decode — see the DTO's comment
 [JsonSerializable(typeof(ApiCodexAuthFileDto))]
 [JsonSerializable(typeof(ApiCodexJwtPayloadDto))]
 [JsonSerializable(typeof(ApiCodexRolloutLineDto))]
