@@ -36,7 +36,7 @@ Winget when I get to it.
 
 ## Features
 
-### The Agents Panel hub
+### The hub
 
 One top-level **Agents Panel** command opens the hub. 
 
